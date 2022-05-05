@@ -10,3 +10,6 @@
 [submodule "Tiny_TCM"]
 	path = Tiny_TCM
 	url = ssh://git@github.com/bluespec/Tiny_TCM
+[submodule "mcu-core"]
+	path = MCU_Core
+	url = git@github.com:bluespec/mcu-core.git
