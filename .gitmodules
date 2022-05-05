@@ -1,0 +1,12 @@
+[submodule "RISCV_Debug_Module"]
+	path = Debug_Module
+	url = ssh://git@github.com/bluespec/RISCV_Debug_Module.git
+[submodule "PLIC"]
+	path = PLIC
+	url = ssh://git@github.com/bluespec/PLIC
+[submodule "CLINT"]
+	path = CLINT
+	url = ssh://git@github.com/bluespec/CLINT
+[submodule "Tiny_TCM"]
+	path = Tiny_TCM
+	url = ssh://git@github.com/bluespec/Tiny_TCM
