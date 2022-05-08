@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# Build the bitstream given a Vivado project
+# This script checks for and expect $MCU_INSTALL to be set
+
+# Command line processing
+usage () {
+   echo "build_bitstream usage: "
+   echo "   -p | --project    <project-name>"
+   echo "   -i | --itcmhex    <imem-hex-file>"
+   echo "   -d | --dtcmhex    <dmem-hex-file>"
+   echo "   -m | --tcmhex     <unified-hex-file>"
+   echo "   -j | --jobs       <num-jobs>"
+}
+
+# Default is separate imem and dmem
+unified_mem=0
+num_jobs=2
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -p | --project  )       shift  # directory where vivado will be invoked
+                                project_name=$1
+                                ;;
+        -m | --memhex   )       shift  # path to memhex file
+                                memhex_file=$1
+                                unified_mem=1
+                                ;;
+        -i | --itcmhex  )       shift  # path to memhex file
+                                imemhex_file=$1
+                                ;;
+        -d | --dtcmhex  )       shift  # path to memhex file
+                                dmemhex_file=$1
+                                ;;
+        -s | --memsize  )       shift  # Size of memory(ies) in KB
+	                        memsize=$1
+                                ;;
+        -j | --jobs     )       shift  # number of vivado threads/jobs
+	                        num_jobs=$1
+                                ;;
+        -h | --help )           usage
+                                exit
+                                ;;
+        * )                     usage
+                                exit 1
+    esac
+    shift
+done
+
+echo ""
+echo "========================================"
+echo "Bluespec MCU Eval Bitstream Generation"
+echo "========================================"
+echo ""
+echo "build_bitstream: [INFO]: Building bitstream for project: ${project_name}"
+echo "build_bitstream: [INFO]: Running ${num_jobs} jobs to generate bitstream"
+echo ""
+
+vivado -mode batch -source ./tcl/build.tcl  \
+   -tclargs --project_name ${project_name}                     \
+            --jobs ${num_jobs} 
+
+echo ""
+echo ""
+
+cp -f ${project_name}/${project_name}.runs/impl_1/*.bit ./${project_name}.bit
+retVal=$?
+if [ $retVal -ne 0 ]; then
+   echo "build_bitstream: [ERROR]: Bitstream generation failed."
+   echo "                          Check Vivado project."
+   echo ""
+   exit $retVal
+else
+   echo "build_bitstream: [INFO]: Bitstream generated at ./${project_name}.bit"
+fi

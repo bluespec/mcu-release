@@ -1,0 +1,8 @@
+A small demo program that blinks a set of LEDs and communicates
+program status by writing to RGB LEDs. Includes an example
+Makefile to compile a RISC-V program for bare-metal execution.
+
+The startup.S is meant to serve as an example for starting a
+bare-metal program. The location for the stack pointer is chosen
+to be at the end of a 8KB DTCM. This location is chosen so that
+the startup.S would work with the smallest DTCM size (8KB).

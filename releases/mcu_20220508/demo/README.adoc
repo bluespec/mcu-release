@@ -1,0 +1,11 @@
+This directory demonstrates functionality of the MCU by creating a SoC comprising
+of:
+
+* MCU (BSCore) (16 KB TCMs)
+* Debug Module (BSDebug)
+* GPIO
+
+The SoC is synthesized using Vivado block design, and is realised on an
+Arty-A7100T FPGA board. The GPIOs drive 16 gpios which are connected to 4 on-off
+LEDs and 4 RGB LEDs on the Arty board.
+

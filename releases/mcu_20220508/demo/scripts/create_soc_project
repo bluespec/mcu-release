@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Build the Vivado project to synthesize the SoC.
+# This script checks for and expect $MCU_INSTALL to be set
+
+if [[ -z "$MCU_INSTALL" ]] 
+then
+   echo "create_soc_project: MCU_INSTALL undefined."
+   exit 1
+fi
+
+# Command line processing
+usage () {
+   echo "create_soc_project usage: "
+   echo "   -p | --project    <project-name>"
+}
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -p | --project  )       shift  # directory where vivado will be invoked
+                                project_name=$1
+                                ;;
+        -h | --help )           usage
+                                exit
+                                ;;
+        * )                     usage
+                                exit 1
+    esac
+    shift
+done
+
+echo ""
+echo "========================================"
+echo "Bluespec MCU Eval SoC Project Generation"
+echo "========================================"
+echo ""
+
+vivado -mode batch -source ./tcl/soc.tcl     \
+   -tclargs --project_name ${project_name}   \
