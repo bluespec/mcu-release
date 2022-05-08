@@ -1,0 +1,2 @@
+Contains Makefiles for compiling the BSV source to RTL
+Please make sure that MCU_REPO is set to the repository top-level before running make

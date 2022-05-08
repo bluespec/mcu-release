@@ -1,0 +1,34 @@
+// This file is a BSV 'include' file
+// The function below represents a ROM of 64 bytes.
+// The ROM has been loaded with a program that toggles an LED (blinky.S)
+
+// Function for 4-bytes values at addrs aligned to 'b000
+// The only different between the SYNTHESIS and SIM versions is the delay
+// parammeter
+
+function Bit #(32) fn_read_ROM_0 (Bit #(n) addr);
+   return
+      case (addr)
+         0 : 32'h_c80002b7;
+         4 : 32'h_00004337;
+         8 : 32'h_ff030313;
+         12: 32'h_00628133;
+         16: 32'h_00012023;
+         20: 32'h_6fff04b7;
+         24: 32'h_00048403;
+         28: 32'h_00144413;
+         32: 32'h_00848023;
+         36: 32'h_00000913;
+`ifdef SYNTHESIS
+         40: 32'h_010009b7;
+`else
+         40: 32'h_10000993;
+`endif
+         44: 32'h_00190913;
+         48: 32'h_ff391ee3;
+         52: 32'h_fe5ff06f;
+         56: 32'h_00000013;
+         60: 32'h_00000013;
+         default: 32'h_AAAA_AAAA;
+      endcase;
+endfunction: fn_read_ROM_0
