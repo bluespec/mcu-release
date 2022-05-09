@@ -23,7 +23,18 @@ When the fabric is a variable is represented by `<F>` in this document.
 
 This repository also includes reference designs that simulate in verilator, or execute on the Arty A7-100T board.
 
-NOTE: `$MCU_REPO` points to the base of this repository (the directory where this document resides), and `$MCU_INSTALL` points to `$MCU_REPO/releases/mcu_yyyymmdd`.
+== Step {counter:installSteps}: Install submodules
+This repository uses submodules.
+Please ensure that you are able to clone the submodules recursively. 
+
+`$MCU_REPO` points to the base of this repository (the directory where this document resides), and `$MCU_INSTALL` points to `$MCU_REPO/releases/mcu_yyyymmdd`.
+
+```
+$ export MCU_REPO=$(pwd)
+$ export MCU_INSTALL=$MCU_REPO/release/mcu_20220508
+$ cd $MCU_REPO
+$ git submodule update --init --recursive
+```
 
 == Step {counter:installSteps}: Install RISC-V Toolchain and Verilator 
 Install the RISC-V toolchain. 
@@ -41,14 +52,6 @@ If you need to install Verilator, please see: https://verilator.org/guide/latest
 
 == Step {counter:installSteps}: Install bsc
 Compiler, simulator and tools for the Bluespec Hardware Description Language are available at (https://github.com/B-Lang-org/bsc[]). 
-
-== Step {counter:installSteps}: Install submodules
-This repository uses submodules. Please ensure that you are able to clone the submodules recursively. 
-
-```
-$ cd $MCU_REPO
-$ git submodule update --init --recursive
-```
 
 == Step {counter:installSteps}: Building the MCU from source
 
@@ -82,7 +85,6 @@ The `make` commands must be executed from the `build` directory only and the env
 For instance, to compile the MCU with 32KB ITCM and DTCM:
 
 ```
-$ export MCU_REPO=$(pwd)
 $ cd build
 $ make -f Makefile.rv32imc.DM MEMSIZE=32K compile_core
 $ # To compile the debug module
