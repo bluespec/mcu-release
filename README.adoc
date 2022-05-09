@@ -30,6 +30,7 @@ Please ensure that you are able to clone the submodules recursively.
 `$MCU_REPO` points to the base of this repository (the directory where this document resides), and `$MCU_INSTALL` points to `$MCU_REPO/releases/mcu_yyyymmdd`.
 
 ```
+$ cd mcu-release
 $ export MCU_REPO=$(pwd)
 $ export MCU_INSTALL=$MCU_REPO/release/mcu_20220508
 $ cd $MCU_REPO
@@ -85,7 +86,7 @@ The `make` commands must be executed from the `build` directory only and the env
 For instance, to compile the MCU with 32KB ITCM and DTCM:
 
 ```
-$ cd build
+$ cd $MCU_REPO/build
 $ make -f Makefile.rv32imc.DM MEMSIZE=32K compile_core
 $ # To compile the debug module
 $ make -f Makefile.rv32imc.DM compile_dm
