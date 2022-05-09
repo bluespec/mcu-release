@@ -151,7 +151,7 @@ The `blinky` test runs on `Sim_RTL`, `plic_smoketest` runs on `Sim_PLIC_RTL` and
 
 ==== Building new simulators
 
-`MCU_INSTALL/scripts/makefiles` contains a sample makefile to build your simulators using Verilator.
+`$MCU_INSTALL/scripts/makefiles` contains a sample makefile to build your simulators using Verilator.
 If you are adding/modifying RTL files, add them to `Sim_RTL` (or `Sim_CLINT_RTL` or `Sim_PLIC_RTL`) before proceeding with the `make.`
 
 If you are adding new C routines, you need to add the appropriate DPI calls to `Verilator_resources/src_C.`
