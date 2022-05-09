@@ -27,7 +27,7 @@ This repository also includes reference designs that simulate in verilator, or e
 This repository uses submodules.
 Please ensure that you are able to clone the submodules recursively. 
 
-`$MCU_REPO` points to the base of this repository (the directory where this document resides), and `$MCU_INSTALL` points to `$MCU_REPO/demo/mcu_yyyymmdd`.
+`$MCU_REPO` points to the base of this repository, and `$MCU_INSTALL` points to `$MCU_REPO/demo/mcu_yyyymmdd`.
 
 ```
 $ cd mcu-release
@@ -103,6 +103,7 @@ $ make -f Makefile.rv32imc.DM compile_dm
 The `$MCU_REPO/demo` folder has pre-built configurations and demo systems built around these configurations.
 `$MCU_INSTALL` points to the latest demo, `$MCU_REPO/demo/mcu_20220508`.
 `$MCU_INSTALL/arty` demonstrates a working system on the Arty A7-100T board and can server as a template on how to integrate the MCU, Debug Module, a Loader, and AHB-L peripherals into a working system.
+An annotated block diagram is available in `$MCU_REPO/docs/MCU_Sys_Integration.pdf`
 
 === Directory Structure
 
@@ -134,5 +135,7 @@ $MCU_REPO
  `--- demo           # System demos
 |
  `--- build          # Compile BSV and genererate RTL
+|
+ `--- docs           # Documentation
 
 ```
