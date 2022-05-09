@@ -49,7 +49,7 @@ $MCU_INSTALL
 |
 `-- synth               : Wrapper-based synthesis setup for performance-area analysis
 |
-`-- demo                : Demo of MCU running on a test SoC on the Arty A7-100 board
+`-- arty                : Demo of MCU running on a test SoC on the Arty A7-100 board
 
 ```
 
@@ -60,7 +60,7 @@ The SoC is constructed using Vivado block design.
 
 To run the demo, program the pre-built bit file (`run/arty.bit`) into the Arty FPGA.
 ```
-$ cd $MCU_INSTALL/demo/run
+$ cd $MCU_INSTALL/arty/run
 $ ../scripts/program_fpga arty.bit
 ```
 
@@ -69,7 +69,7 @@ Once the programming completes, the `LD0` LED will blink on the board. This indi
 To interact with the CPU or perhaps load another program via GDB, connect GDB and halt the CPU:
 
 ```
-$ cd $MCU_INSTALL/demo/run
+$ cd $MCU_INSTALL/arty/run
 $ riscv32-unknown-elf-gdb --command init_32.gdb
 ```
 
@@ -78,10 +78,10 @@ A GDB prompt will appear and you can interact with the MCU using GDB including q
 === Rebuilding the demo project
 
 The demo is also meant to serve as a reference on integrating the mkBSDebug and mkBSCore modules and their integration into a larger system.
-In order to access the Vivado block design, first create the Vivado project for the demo SoC and then open the block design using Vivado.
+In order to access the Vivado block design, first create the Vivado project for the demo SoC and then open the block design using Vivado. Here, we are using the name `demo_soc` for the project.
 
 ```
-$ cd $MCU_INSTALL/demo
+$ cd $MCU_INSTALL/arty
 $ ./scripts/create_soc_project -p demo_soc
 $ vivado ./demo_soc/demo_soc.xpr
 ```
@@ -89,7 +89,7 @@ $ vivado ./demo_soc/demo_soc.xpr
 To build the bitfile using the above project:
 
 ```
-$ cd $MCU_INSTALL/demo
+$ cd $MCU_INSTALL/arty
 $ ./scripts/build_bitstream -p demo_soc
 ```
 
@@ -111,8 +111,8 @@ NOTE: Changing the `DLY` value in `$MCU_INSTALL/tests/blinky/main.c` will alter 
 
 === Step {counter:relInstall}: Run the GPIO blinky simulation
 
-Three demo SoCs have been included in this release package to demonstrate MCU functionality. These SoCs integrate the MCU with an AHBL-based GPIO (`Sim_RTL`), AHBL-based PLIC (`Sim_PLIC_RTL`), and AHBL-based CLINT (`Sim_CLINT_RTL`) devices.
-In the case of the demo SoC that features the PLIC, there is an interrupt injector device that injects interrupts into the PLIC to demonstrate PLIC functionality. 
+Three simulatable test SoCs have been included in this release package to demonstrate MCU functionality. These SoCs integrate the MCU with an AHBL-based GPIO (`Sim_RTL`), AHBL-based PLIC (`Sim_PLIC_RTL`), and AHBL-based CLINT (`Sim_CLINT_RTL`) devices.
+In the case of the test SoC that features the PLIC, there is an interrupt injector device that injects interrupts into the PLIC to demonstrate PLIC functionality. 
 Please note that to exercise these demo SoCs, the appropriate smoke-tests should be run with the appropriate demo SoC.
 The `blinky` test runs on `Sim_RTL`, `plic_smoketest` runs on `Sim_PLIC_RTL` and `clint_smoketest` runs on `Sim_CLINT_RTL`.
 
@@ -197,31 +197,16 @@ Let's assume we are synthesizing for a clock frequency of 100 MHz (10 ns clock p
 
 ```
 $ cd $MCU_INSTALL/synth/xilinx
-$ ./run_synth.sh -c 10.0 -t mkMCUTop -f $MCU_INSTALL/MCU.rv32imc.64K.AHBL.DM/Synth_RTL -j 4 
+$ ./run_synth.sh -c 10.0 -t mkBSCore -f $MCU_INSTALL/MCU.rv32imc.64K.AHBL.DM/Core_RTL -j 4 
 ```
 
 The last argument, `-j 4`, instructs Vivado to run up to four jobs in parallel.
 A complete list of `run_synth.sh` options are available with `run_synth.sh --help`
 
 Vivado runs inside a synthesis work area created by `run_synth.sh`.
-This work area will be named like `synth-mkMCUTop-datestamp.`
+This work area will be named like `synth-mkBSCore-datestamp.`
 The log files from the run will be placed in the `impl_1` directory inside the synthesis run directory.
 A sampling of frequency and utilization numbers for rv32imc configurations without the debug module are tabulated below.
-
-.Timing on Xilinx
-[cols="30,20,15,~"]
-|===
-| Configuration              | Fmax (MHz)   | LUTs   | DFFs
-
-| MCU.rv32imc.16K.AHBL       | 94.06        | 2951   | 1388
-
-| MCU.rv32imc.32K.AHBL       | 95.35        | 3015   | 1390
-
-| MCU.rv32imc.64K.AHBL       | 87.48        | 2997   | 1385
-
-| MCU.rv32imc.128K.AHBL      | 87.08        | 2975   | 1387
-
-|===
 
 ===== Synthesizing for Microsemi Devices
 
@@ -231,9 +216,9 @@ The FPGA device in these scripts has been fixed to SmartFusion2 M2S090T FPGA.
 
 ```
 $ cd $MCU_INSTALL/synth/microsemi
-$ ./run_synth.sh -c 20.0 -t mkMCUTop -f $MCU_INSTALL/MCU.rv32ic.64K.AHBL.DM/Synth_RTL
+$ ./run_synth.sh -c 20.0 -t mkBSCore -f $MCU_INSTALL/MCU.rv32ic.64K.AHBL.DM/Core_RTL
 ```
 
 Libero runs inside a synthesis work-area created by `run_synth.sh`.
-This work area will be named like `synth-mkMCUTop-datestamp`.
+This work area will be named like `synth-mkBSCore-datestamp`.
 The log files from the run will be placed in the `mkMCUTop` directory inside the synthesis run directory.

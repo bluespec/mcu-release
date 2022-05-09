@@ -141,7 +141,7 @@ SoC_RTL:
 .PHONY: compile_core
 compile_core:  build_dir  Core_RTL
 	@echo '-------------------------'
-	date +"(%F %T) Generating MCU Core (BSCore) RTL ..."
+	date +"(%F %T) Generating MCU Core (mkBSCore) RTL ..."
 	bsc -u -elab -verilog -vdir Core_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) $(BSC_PATH)  $(CORE_TOP_FILE)
 	rm Core_RTL/mkDummy_Mem_Server.v Core_RTL/mkShifter_Box.v
 	for f in FIFO2.v FIFO20.v FIFO10.v FIFO1.v SizedFIFO.v BRAM2.v BRAM2BE.v RegFile.v MakeResetA.v SyncResetA.v; do cp src_bsc_lib_rtl/$$f Core_RTL/; done
@@ -152,7 +152,7 @@ compile_core:  build_dir  Core_RTL
 .PHONY: compile_dm
 compile_dm:  build_dir  DM_RTL
 	@echo '-------------------------'
-	date +"(%F %T) Generating RISC-V Debug Module (BSDebug) RTL ..."
+	date +"(%F %T) Generating RISC-V Debug Module (mkBSDebug) RTL ..."
 	bsc -u -elab -verilog -vdir DM_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) $(BSC_PATH)  $(DM_TOP_FILE)
 	rm DM_RTL/mkSoC_Map.v DM_RTL/mkJtag.v
 	for f in FIFO2.v FIFO20.v FIFO1.v SyncFIFOLevel.v ASSIGN1.v ResetInverter.v SyncHandshake.v SyncWire.v SyncResetA.v MakeResetA.v; do cp src_bsc_lib_rtl/$$f DM_RTL/; done

@@ -74,29 +74,35 @@ The makefile implements the following targets:
 [cols="15,~"]
 |===
 | Target             | Description
-| `compile_core`     | Compiles the MCU CPU and generates the `mkBSCore`. RTL created in `Core_RTL`. The make variable `MEMSIZE` can be used used to change the TCM size. The default value is 16KB.
+| `compile_core`     | Compiles the MCU CPU and generates the `mkBSCore`. RTL created in `MCU.<M>K.AHBL.DM/Core_RTL`. The make variable `MEMSIZE` can be used to change the TCM size. The default value is 16KB.
 | `compile_dm`       | Compiles the RISC-V Debug Module and generates the `mkBSDebug`. RTL created in `DM_RTL`
 | `compile_plic`     | Compiles the RISC-V PLIC and generates the `mkPLIC_16_1_7`. RTL created in `PLIC_RTL`. The PLIC is configured to have 16 source interrupts, 1 target interrupt and 7 priority levels.
-| `compile_clint`    | Compiles the RISC-V CLINT and generates the `mkCLINT_AHBL`. RTL created in `PLIC_RTL`. The PLIC is configured to have 16 source interrupts, 1 target interrupt and 7 priority levels.
-| `compile_soc`      | Compiles a test SoC that integrates `mkBSCore`, `mkBSDebug`, a loader device and a GPIO device. This SoC is also used as the demo SoC on the Arty board. RTL created in `SoC_RTL`.
-| `compile_sim`      | Compiles a simulation version of the test SoC that can run on Verilator 
-| `compile_sim_clint`| Compiles a simulation version of the test SoC that also integrates the CLINT
-| `compile_sim_plic` | Compiles a simulation version of the test SoC that also integrates the PLIC
+| `compile_clint`    | Compiles the RISC-V CLINT and generates the `mkCLINT_AHBL`. RTL created in `CLINT_RTL`.
+| `compile_soc`      | Compiles a test SoC that integrates `mkBSCore`, `mkBSDebug`, a loader device and a GPIO device. This SoC is also used as the demo SoC on the Arty board. RTL created in `MCU.<M>K.AHBL.DM/SoC_RTL`.
+| `compile_sim`      | Compiles a simulation version of the test SoC that can run on Verilator. RTL created in `MCU.<M>K.AHBL.DM/Sim_RTL`.
+| `compile_sim_clint`| Compiles a simulation version of the test SoC that also integrates the CLINT. RTL created in `MCU.<M>K.AHBL.DM/Sim_CLINT_RTL`.
+| `compile_sim_plic` | Compiles a simulation version of the test SoC that also integrates the PLIC. RTL created in `MCU.<M>K.AHBL.DM/Sim_PLIC_RTL`.
 |===
 
-The `make` commands must be executed from the `build` directory only and the environment variable `MCU_REPO` must be set to the base of this repository.
+The `make` commands must be executed from the `build` directory only.
+The `compile_core`, `compile_soc` and `compile_sim*` targets accept the `MEMSIZE` argument that determines the TCM size in KBs. 
+The `compile_dm`, `compile_plic` and `compile_clint` targets do not take any arguments.
+
 For instance, to compile the MCU with 32KB ITCM and DTCM:
 
 ```
 $ cd $MCU_REPO/build
+$ # RTL will be placed in MCU.32K.AHBL.DM/Core_RTL
 $ make -f Makefile.rv32imc.DM MEMSIZE=32K compile_core
-$ # To compile the debug module
+$
+$ # To compile the debug module - RTL will be placed in DM_RTL
 $ make -f Makefile.rv32imc.DM compile_dm
 ```
 
-=== Step {counter:installSteps}: Using pre-built configurations
-Pre-built configurations of the MCU, Debug Module, PLIC and CLINT are available in the included release, `releases/mcu_yyyymmdd`.
-In order to use the pre-built configurations please refer to the README in `releases/mcu_yyyymmdd`. Please note that the variable `MCU_INSTALL` must be set to the location of the release folder before running any of the scripts.
+=== Step {counter:installSteps}: Pre-built configurations
+The `$MCU_REPO/demo` folder has pre-built configurations and demo systems built around these configurations.
+`$MCU_INSTALL` points to the latest demo, `$MCU_REPO/demo/mcu_20220508`.
+`$MCU_INSTALL/arty` demonstrates a working system on the Arty A7-100T board and can server as a template on how to integrate the MCU, Debug Module, a Loader, and AHB-L peripherals into a working system.
 
 === Directory Structure
 
@@ -125,7 +131,7 @@ $MCU_REPO
 |
  `--- Tiny_TCM       # TCM-based memory source
 |
- `--- releases       # Packaged releases for a quick start
+ `--- demo           # System demos
 |
  `--- build          # Compile BSV and genererate RTL
 
