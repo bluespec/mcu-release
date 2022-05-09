@@ -110,7 +110,8 @@ A GDB prompt will appear and you can interact with the MCU using GDB including q
 
 === Rebuilding the demo project
 
-The demo is also meant to serve as a reference on integrating the mkBSDebug and mkBSCore modules and their integration into a larger system. In order to access the Vivado block design, first create the Vivado project for the demo SoC and then open the block design using Vivado.
+The demo is also meant to serve as a reference on integrating the mkBSDebug and mkBSCore modules and their integration into a larger system.
+In order to access the Vivado block design, first create the Vivado project for the demo SoC and then open the block design using Vivado.
 
 ```
 $ cd $MCU_INSTALL/demo
@@ -204,16 +205,13 @@ While integrating, the corresponding input must be tied low if an interrupts are
 
 The mkMCUTop drives all AHB-Lite master signals.
 
-The RAM blocks in the TCM expects two 32-bit hex file, `/tmp/itcm.mem` and `/tmp/dtcm.mem`, to be present during synthesis; if these files are not present, the contents of the TCM RAM after synthesis is undefined.
-The simplest way to generate these files is to run the application program in simulation, which runs `Elf_to_Hex` on the elf file and creates the memory hex files.
-The utility `$MCU_INSTALL/scripts/Elf_to_Hex/elfhex.sh` utility can also be run directly without proceeding to simulation.
-
 All sources to synthesize `mkMCUTop.v` are present in the `MCU.<A>.<M>K.<F>/Synth_RTL` and `MCU.<A>.<M>K.<F>.DM/Synth_RTL` directories. 
 
 ==== Demo SoC (simulation)
 
-Three demo SoCs have been included in the release package to demonstrate MCU functionality. These SoCs integrate the MCU with an AHBL-based GPIO (`Sim_RTL`), AHBL-based PLIC (`Sim_PLIC_RTL`), and AHBL-based CLINT (`Sim_CLINT_RTL`) devices. 
-In the case of the demo SoC, which features the PLIC, there is an interrupt injector device that injects interrupts into the PLIC to demonstrate PLIC functionality.  
+Three demo SoCs have been included in the release package to demonstrate MCU functionality.
+These SoCs integrate the MCU with an AHBL-based GPIO (`Sim_RTL`), AHBL-based PLIC (`Sim_PLIC_RTL`), and AHBL-based CLINT (`Sim_CLINT_RTL`) devices. 
+In the case of the demo SoC that features the PLIC, there is an interrupt injector device that injects interrupts into the PLIC to demonstrate PLIC functionality.  
 
 The top level of the demo SoC is `mkSoC_Top.v.`
 
