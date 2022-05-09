@@ -23,7 +23,7 @@ Reading and writing the GPIO is done through ordinary load and store instruction
 
 == Bluespec MCU Installation
 
-== Step 1: Install RISC-V Toolchain and Verilator 
+== Step {counter:relInstall}: Install RISC-V Toolchain and Verilator 
 Install The RISC-V toolchain. 
 The Bluespec RISC-V MCU Toolchain is available at: https://info.bluespec.com/mcuevaldownload?submissionGuid=aa21ef17-c2d0-45b6-93e6-a35c4c468e7e
 
@@ -39,7 +39,7 @@ $ sudo yum install glibc-static
 ```
 NOTE: The RISC-V toolchain and Verilator will install to `/opt/bluespec.`
 
-=== Step 2: Untar the release package
+=== Step {counter:relInstall}: Untar the release package
 Download `bluespec_mcu_yyyymmdd.tar.gz` and untar the package in a directory of your choice.
 Next, change directories to `mcu_yyyymmdd` and set the new environment variable `MCU_INSTALL` to the current working directory.
 For instance, if the release package is `bluespec_mcu_yyyymmdd.tar.gz`:
@@ -52,19 +52,12 @@ $ export MCU_INSTALL=$(pwd)
 ```
 The variable `MCU_INSTALL` is used in the remainder of this document to identify the installation directory unambiguously.
 
+If this release is already part of the `MCU_REPO` then an untar is not necessary, and `MCU_INSTALL` can directly be set to the releases/mcu_yyyymmdd directory.
+
 ==== Directory Structure
 
 ```
 $MCU_INSTALL
-|
-`-- MCU.<A>.<M>K.<F>    : MCU (no debug module) (<A> = RV arch)
-|   |                     (<M> = mem-size KB)   (<F> = SoC Fabric)
-|   |
-|   `-- Sim_RTL         : RTL including top-level sources for sim
-|   |
-|   `-- Synth_RTL       : MCU IP RTL
-|   |
-|   `-- Demo_RTL        : RTL to integrate MCU with demo SoC
 |
 `-- MCU.<A>.<M>K.<F>.DM : MCU (with debug module) (<A> = RV arch)
 |   |                     (<M> = mem-size KB)     (<F> = SoC Fabric)
@@ -77,19 +70,62 @@ $MCU_INSTALL
 |   |
 |   `-- run             : GDB and openocd run scripts
 |
-`-- CLINT               : Core Level Interrupt Controller
+`-- CLINT_AHBL          : Core Level Interrupt Controller packagd as Vivado IP
 |
-`-- PLIC                : Platform Level Interrupt Controller
+`-- PLIC_AHBL           : Platform Level Interrupt Controller packagd as Vivado IP
+|
+`-- Debug_Module        : RISC-V Debug Module pacakged as Viviado IP
 |
 `-- scripts             : makefiles and utilites
 |
 `-- tests               : C software applications (blinky)
 |
 `-- synth               : Wrapper-based synthesis setup for performance-area analysis
+|
+`-- demo                : Demo of MCU running on a test SoC on the Arty A7-100 board
 
 ```
 
-=== Step 3: Compile the blinky RISC-V program
+=== Step {counter:relInstall}: Running the Arty demo
+
+The demo integrates a MCU with 16KB TCMs (mkBSCore) with the RISC-V Debug Module (mkBSDebug), a GPIO device (mkGPIO_AHBL) and a Loader device (mkLoader).
+The SoC is constructed using Vivado block design.
+
+To run the demo, program the pre-built bit file (`run/arty.bit`) into the Arty FPGA.
+```
+$ cd $MCU_INSTALL/demo/run
+$ ../scripts/program_fpga arty.bit
+```
+
+Once the programming completes, the `LD0` LED will blink on the board. This indicates that the loader successfully loaded a simple program into the TCMs that makes the `LD0` LED blink slowly.
+
+To interact with the CPU or perhaps load another program via GDB, connect GDB and halt the CPU:
+
+```
+$ cd $MCU_INSTALL/demo/run
+$ riscv32-unknown-elf-gdb --command init_32.gdb
+```
+
+A GDB prompt will appear and you can interact with the MCU using GDB including querying registers, loading another program, etc.
+
+=== Rebuilding the demo project
+
+The demo is also meant to serve as a reference on integrating the mkBSDebug and mkBSCore modules and their integration into a larger system. In order to access the Vivado block design, first create the Vivado project for the demo SoC and then open the block design using Vivado.
+
+```
+$ cd $MCU_INSTALL/demo
+$ ./scripts/create_soc_project -p demo_soc
+$ vivado ./demo_soc/demo_soc.xpr
+```
+
+To build the bitfile using the above project:
+
+```
+$ cd $MCU_INSTALL/demo
+$ ./scripts/build_bitstream -p demo_soc
+```
+
+=== Step {counter:relInstall}: Compile the blinky RISC-V program
 
 `blinky` is a simple program that cycles through 16 LED combinations and communicates other tests statuses through RGB LEDs. Additionally, it also runs a little sort routine to test TCM reads and writes.
 
@@ -105,7 +141,7 @@ The same instructions can be used to compile the other test programs -- `clint_s
 
 NOTE: Changing the `DLY` value in `$MCU_INSTALL/tests/blinky/main.c` will alter the length of the delay loops. You can use this mechanism to vary `blinky`'s overall run-time.
 
-=== Step 4: Run the GPIO blinky simulation
+=== Step {counter:relInstall}: Run the GPIO blinky simulation
 
 Three demo SoCs have been included in this release package to demonstrate MCU functionality. These SoCs integrate the MCU with an AHBL-based GPIO (`Sim_RTL`), AHBL-based PLIC (`Sim_PLIC_RTL`), and AHBL-based CLINT (`Sim_CLINT_RTL`) devices.
 In the case of the demo SoC that features the PLIC, there is an interrupt injector device that injects interrupts into the PLIC to demonstrate PLIC functionality. 
@@ -127,26 +163,6 @@ $ make simulator <SIM_RTL=Sim_RTL/Sim_PLIC_RTL/Sim_CLINT_RTL>
 The `make` will build a simulator executable called `exe_HW_sim`.
 It uses the RTL and testbench files from the directory pointed to in the Makefile variable, `SIM_RTL`. The default value is `Sim_RTL`.
 
-
-==== Simulating MCU with no Debug Module
-
-We will use the pre-built Verilator simulator, `exe_HW_sim`, to simulate the MCU SoC, using `blinky` compiled in <<Step 3: Compile the blinky RISC-V program>> as the software application.
-The `MEMSIZE` value is required for the `run_test` target. It is used by the `elfhex.sh` utility to create a memory image for the test.
-The memory image is sized to fill the memory based on `MEMSIZE`
-
-For instance, to run blinky on an MCU with 16KB TCM that uses AHBL:
-
-```
-$ cd $MCU_INSTALL/MCU.rv32ic.16K.AHBL
-$ make run_test TEST=$MCU_INSTALL/tests/blinky/main MEMSIZE=16
-```
-
-The testbench prints out an instruction trace as it executes the application on the processor.
-The TCM memories are loaded with the contents of `/tmp/itcm.mem` and `/tmp/dtcm.mem` which are 32-bit mem hex files created by the `$MCU_INSTALL/scripts/Elf_to_Hex` utility when make is invoked. 
-The simulation exits automatically because the testbench is setup to detect a write to the `tohost` address. This location should be mapped to an unused word in the TCM.
-In the template blinky program, the `tohost` location is specified in the `bare.lds` file and is mapped to `0xc8001ff4`.
-
-NOTE: To dump a VCD waveform of the simulation use the target `run_test_waves` in the make command. 
 
 ==== Simulating MCU with Debug Module
 
@@ -182,10 +198,7 @@ NOTE: Make sure that the hardware simulation does not auto-terminate before a GD
 The ITCM is placed at `0xc0000000` and the DTCM is placed at `0xc8000000`. These locations are fixed in this release.
 The PC and MTVEC reset to `0xc0000000`.
 The PLIC is placed at `0x0c000000` and the CLINT is placed at `0x02000000`.
-These can be modified by modifying the entries in `mkSoC_Map.v` for `m_plic_addr_base` and `m_clint_addr_base` respectively.
-Please note that any modification must also reflect in the program running on the MCU.
 
-The top-level for the synthesis of the MCU is `mkMCUTop.v.`
 There are three interrupt inputs to `mkMCUTop` -- external (`ext_interrupt), software (`sw_interrupt`) and timer (`timer_interrupt`).
 While integrating, the corresponding input must be tied low if an interrupts are not being used.
 
@@ -197,14 +210,12 @@ The utility `$MCU_INSTALL/scripts/Elf_to_Hex/elfhex.sh` utility can also be run 
 
 All sources to synthesize `mkMCUTop.v` are present in the `MCU.<A>.<M>K.<F>/Synth_RTL` and `MCU.<A>.<M>K.<F>.DM/Synth_RTL` directories. 
 
-==== Demo SoC
+==== Demo SoC (simulation)
 
 Three demo SoCs have been included in the release package to demonstrate MCU functionality. These SoCs integrate the MCU with an AHBL-based GPIO (`Sim_RTL`), AHBL-based PLIC (`Sim_PLIC_RTL`), and AHBL-based CLINT (`Sim_CLINT_RTL`) devices. 
 In the case of the demo SoC, which features the PLIC, there is an interrupt injector device that injects interrupts into the PLIC to demonstrate PLIC functionality.  
 
 The top level of the demo SoC is `mkSoC_Top.v.`
-
-To synthesize the complete GPIO-based demo system, please include the files in `MCU.<A>.<M>K.<F>/Demo_RTL` (without DM) or `MCU.<A>.<M>K.<F>.DM/Demo_RTL` (with DM) in addition to the ones in `Synth_RTL.`
 
 ==== Wrapper Based Synthesis Setup
 
@@ -261,50 +272,3 @@ $ ./run_synth.sh -c 20.0 -t mkMCUTop -f $MCU_INSTALL/MCU.rv32ic.64K.AHBL.DM/Synt
 Libero runs inside a synthesis work-area created by `run_synth.sh`.
 This work area will be named like `synth-mkMCUTop-datestamp`.
 The log files from the run will be placed in the `mkMCUTop` directory inside the synthesis run directory.
-Frequency and utilization numbers from rv32ic and rv32imc configurations in this release are tabulated below. 
-
-.Timing and Resources on Microsemi (without debug module)
-[cols="30,20,15,~"]
-|===
-| Configuration      | Fmax (MHz)   | 4LUTs  | DFFs
-
-| MCU.rv32ic.16K.AHBL |  94.33 |  5524 |  3319
-
-| MCU.rv32ic.32K.AHBL |  91.05 |  5847 |  3491
-
-| MCU.rv32ic.64K.AHBL |  88.12 |  6619 |  4166
-
-| MCU.rv32ic.128K.AHBL |  74.15 |  7696 |  5066
-
-| MCU.rv32imc.16K.AHBL |  87.71 |  6642 |  3565
-
-| MCU.rv32imc.32K.AHBL |  90.66 |  6824 |  3956
-
-| MCU.rv32imc.64K.AHBL |  82.95 |  7541 |  4557
-
-| MCU.rv32imc.128K.AHBL |  73.25 |  8638 |  5520
-
-|===
-
-.Timing and Resources on Microsemi (with debug module)
-[cols="30,20,15,~"]
-|===
-| Configuration      | Fmax (MHz)   | 4LUTs  | DFFs
-
-| MCU.rv32ic.16K.AHBL.DM |  87.75 |  10009 |  6033
-
-| MCU.rv32ic.32K.AHBL.DM |  86.78 |  10326 |  5945
-
-| MCU.rv32ic.64K.AHBL.DM |  72.49 |  10979 |  7027
-
-| MCU.rv32ic.128K.AHBL.DM |  65.58 |  12252 |  7603
-
-| MCU.rv32imc.16K.AHBL.DM |  87.75 |  10009 |  6033
-
-| MCU.rv32imc.32K.AHBL.DM |  86.78 |  10326 |  5945
-
-| MCU.rv32imc.64K.AHBL.DM |  72.49 |  10979 |  7027
-
-| MCU.rv32imc.128K.AHBL.DM |  65.58 |  12252 |  7603
-
-|===

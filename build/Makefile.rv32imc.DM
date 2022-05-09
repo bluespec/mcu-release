@@ -18,6 +18,7 @@ help:
 	@echo ''                          
 	@echo '   NOTE: All compile targets need the Bluespec bsc compiler'
 	@echo '   NOTE: needs MCU_REPO to point to top-level of release repository'
+	@echo '   NOTE: Run this makefile from the MCU_REPO/build directory only'
 
 # ================================================================
 # User-variables
