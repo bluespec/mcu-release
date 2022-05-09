@@ -23,24 +23,32 @@ When the fabric is a variable is represented by `<F>` in this document.
 
 This repository also includes reference designs that simulate in verilator, or execute on the Arty A7-100T board.
 
-== Step {counter:installSteps}: Install RISC-V Toolchain and Verilator 
-Install The RISC-V toolchain. 
-The Bluespec RISC-V MCU Toolchain is available at: https://info.bluespec.com/mcuevaldownload?submissionGuid=aa21ef17-c2d0-45b6-93e6-a35c4c468e7e
+NOTE: `$MCU_REPO` points to the base of this repository (the directory where this document resides), and `$MCU_INSTALL` points to `$MCU_REPO/releases/mcu_yyyymmdd`.
 
-```
-$ sudo yum install riscvachronix-1.202105.0.1.1.1centos7-2.x86_64.rpm
-```
-Install extra Verilator dependencies
-```
-$ sudo yum install lstdc++-stable
-$ sudo yum install lstdc++-static
-$ sudo yum install libstdc++-static
-$ sudo yum install glibc-static
-```
-NOTE: The RISC-V toolchain and Verilator will install to `/opt/bluespec.`
+== Step {counter:installSteps}: Install RISC-V Toolchain and Verilator 
+Install the RISC-V toolchain. 
+The Bluespec RISC-V MCU Toolchain is available for several recent Linux distributions at:
+
+https://info.bluespec.com/mcuevaldownload?submissionGuid=aa21ef17-c2d0-45b6-93e6-a35c4c468e7e
+
+Please follow the installation instructions for one of the Linux options provided at the above link.
+
+NOTE: The RISC-V toolchain will install to `/opt/bluespec.`
+
+Install Verilator:
+The simulations demonstrated in this release release require Verilator 4.010 or later. Verilator comes pre-installed with certain Linux distributions like Ubuntu.
+If you need to install Verilator, please see: https://verilator.org/guide/latest/install.html
 
 == Step {counter:installSteps}: Install bsc
 Compiler, simulator and tools for the Bluespec Hardware Description Language are available at (https://github.com/B-Lang-org/bsc[]). 
+
+== Step {counter:installSteps}: Install submodules
+This repository uses submodules. Please ensure that you are able to clone the submodules recursively. 
+
+```
+$ cd $MCU_REPO
+$ git submodule update --init --recursive
+```
 
 == Step {counter:installSteps}: Building the MCU from source
 
