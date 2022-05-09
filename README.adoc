@@ -27,12 +27,12 @@ This repository also includes reference designs that simulate in verilator, or e
 This repository uses submodules.
 Please ensure that you are able to clone the submodules recursively. 
 
-`$MCU_REPO` points to the base of this repository (the directory where this document resides), and `$MCU_INSTALL` points to `$MCU_REPO/releases/mcu_yyyymmdd`.
+`$MCU_REPO` points to the base of this repository (the directory where this document resides), and `$MCU_INSTALL` points to `$MCU_REPO/demo/mcu_yyyymmdd`.
 
 ```
 $ cd mcu-release
 $ export MCU_REPO=$(pwd)
-$ export MCU_INSTALL=$MCU_REPO/release/mcu_20220508
+$ export MCU_INSTALL=$MCU_REPO/demo/mcu_20220508
 $ cd $MCU_REPO
 $ git submodule update --init --recursive
 ```
@@ -50,7 +50,7 @@ Please follow the installation instructions for one of the Linux options provide
 NOTE: The RISC-V toolchain will install to `/opt/bluespec.`
 
 Install Verilator:
-The simulations demonstrated in this release release require Verilator 4.010 or later. Verilator comes pre-installed with certain Linux distributions like Ubuntu.
+The simulations demonstrated in this release require Verilator 4.010 or later. Verilator comes pre-installed with certain Linux distributions like Ubuntu.
 If you need to install Verilator, please see: https://verilator.org/guide/latest/install.html
 
 == Step {counter:installSteps}: Install bsc
