@@ -37,6 +37,8 @@ $ cd $MCU_REPO
 $ git submodule update --init --recursive
 ```
 
+NOTE: If you are unable to clone all the submodules, please get in touch with Bluespec at mcusupport@bluespec.com
+
 == Step {counter:installSteps}: Install RISC-V Toolchain and Verilator 
 Install the RISC-V toolchain. 
 The Bluespec RISC-V MCU Toolchain is available for several recent Linux distributions at:

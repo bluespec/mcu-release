@@ -21,40 +21,7 @@ This release includes three reference systems.
 The reference system integrates a GPIO or a CLINT or a PLIC with the CPU on AHBL.
 Reading and writing the GPIO is done through ordinary load and store instructions interpreted as accesses to memory-mapped IO by the CPU.
 
-== Bluespec MCU Installation
-
-== Step {counter:relInstall}: Install RISC-V Toolchain and Verilator 
-Install The RISC-V toolchain. 
-The Bluespec RISC-V MCU Toolchain is available at: https://info.bluespec.com/mcuevaldownload?submissionGuid=aa21ef17-c2d0-45b6-93e6-a35c4c468e7e
-
-```
-$ sudo yum install riscvachronix-1.202105.0.1.1.1centos7-2.x86_64.rpm
-```
-Install extra Verilator dependencies
-```
-$ sudo yum install lstdc++-stable
-$ sudo yum install lstdc++-static
-$ sudo yum install libstdc++-static
-$ sudo yum install glibc-static
-```
-NOTE: The RISC-V toolchain and Verilator will install to `/opt/bluespec.`
-
-=== Step {counter:relInstall}: Untar the release package
-Download `bluespec_mcu_yyyymmdd.tar.gz` and untar the package in a directory of your choice.
-Next, change directories to `mcu_yyyymmdd` and set the new environment variable `MCU_INSTALL` to the current working directory.
-For instance, if the release package is `bluespec_mcu_yyyymmdd.tar.gz`:
-
-```
-$ cd <your_work_dir>
-$ tar -xzvf bluespec_mcu_yyyymmdd.tar.gz
-$ cd mcu_yyyymmdd
-$ export MCU_INSTALL=$(pwd)
-```
-The variable `MCU_INSTALL` is used in the remainder of this document to identify the installation directory unambiguously.
-
-If this release is already part of the `MCU_REPO` then an untar is not necessary, and `MCU_INSTALL` can directly be set to the releases/mcu_yyyymmdd directory.
-
-==== Directory Structure
+== Directory Structure
 
 ```
 $MCU_INSTALL
@@ -196,16 +163,16 @@ NOTE: Make sure that the hardware simulation does not auto-terminate before a GD
 
 === The SoC address map
 
-The ITCM is placed at `0xc0000000` and the DTCM is placed at `0xc8000000`. These locations are fixed in this release.
-The PC and MTVEC reset to `0xc0000000`.
+The ITCM is placed at `0xc0000000` and the DTCM is placed at `0xc8000000`. 
 The PLIC is placed at `0x0c000000` and the CLINT is placed at `0x02000000`.
+The PC and MTVEC reset to `0xc0000000`.
 
 There are three interrupt inputs to `mkMCUTop` -- external (`ext_interrupt), software (`sw_interrupt`) and timer (`timer_interrupt`).
 While integrating, the corresponding input must be tied low if an interrupts are not being used.
 
 The mkMCUTop drives all AHB-Lite master signals.
 
-All sources to synthesize `mkMCUTop.v` are present in the `MCU.<A>.<M>K.<F>/Synth_RTL` and `MCU.<A>.<M>K.<F>.DM/Synth_RTL` directories. 
+All sources to synthesize `mkBSCore.v` are present in the `MCU.<A>.<M>K.<F>.DM/Core_RTL` directories. Other system modules that are common to all configurations of the MCU (`Debug_Module`, `CLINT` and `PLIC`) may be synthesized with the sources in `Debug_Module/hdl`, `CLINT_AHBL/hdl`, and `PLIC_AHBL/hdl` respectively.
 
 ==== Demo SoC (simulation)
 
