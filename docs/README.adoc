@@ -99,11 +99,22 @@ $ # To compile the debug module - RTL will be placed in DM_RTL
 $ make -f Makefile.rv32imc.DM compile_dm
 ```
 
+NOTE: Please run `make clean` between compile commands to clean up intermediate files that may corrupt subsequent builds.
+
 === Step {counter:installSteps}: Pre-built configurations
+
 The `$MCU_REPO/demo` folder has pre-built configurations and demo systems built around these configurations.
 `$MCU_INSTALL` points to the latest demo, `$MCU_REPO/demo/mcu_20220508`.
-`$MCU_INSTALL/arty` demonstrates a working system on the Arty A7-100T board and can server as a template on how to integrate the MCU, Debug Module, a Loader, and AHB-L peripherals into a working system.
+
+```
+$ export MCU_INSTALL=$MCU_REPO/demo/mcu_20220508
+```
+
+`$MCU_INSTALL/arty` demonstrates a working system on the Arty A7-100T board and can serve as a template on how to integrate the MCU, Debug Module, a Loader, and AHB-L peripherals into a working system.
+
 An annotated block diagram is available in `$MCU_REPO/docs/MCU_Sys_Integration.pdf`
+
+Please refer to $MCU_INSTALL/README.html for further details about the demo and its features.
 
 === Directory Structure
 

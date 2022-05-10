@@ -1,0 +1,9 @@
+= Bluespec MCU - A Minimal Footprint RISC-V RV32IM Core
+:icons: font
+:data-uri:
+
+This is the top-level of the MCU repositoy.
+
+Documentation is available in the `docs` folder.
+
+A working demo with related documentation is available in the `demo` folder.
