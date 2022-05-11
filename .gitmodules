@@ -1,15 +1,15 @@
 [submodule "RISCV_Debug_Module"]
 	path = Debug_Module
-	url = ssh://git@github.com/bluespec/RISCV_Debug_Module.git
+	url = https://github.com/bluespec/RISCV_Debug_Module.git
 [submodule "PLIC"]
 	path = PLIC
-	url = ssh://git@github.com/bluespec/PLIC
+	url = https://github.com/bluespec/PLIC.git
 [submodule "CLINT"]
 	path = CLINT
-	url = ssh://git@github.com/bluespec/CLINT
+	url = https://github.com/bluespec/CLINT.git
 [submodule "Tiny_TCM"]
 	path = Tiny_TCM
-	url = ssh://git@github.com/bluespec/Tiny_TCM
+	url = https://github.com/bluespec/Tiny_TCM.git
 [submodule "mcu-core"]
 	path = MCU_Core
-	url = git@github.com:bluespec/mcu-core.git
+	url = https://github.com/bluespec/mcu-core.git
