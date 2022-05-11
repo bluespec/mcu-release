@@ -92,10 +92,11 @@ For instance, to compile the MCU with 32KB ITCM and DTCM:
 
 ```
 $ cd $MCU_REPO/build
-$ # RTL will be placed in MCU.32K.AHBL.DM/Core_RTL
+
+# RTL will be placed in MCU.32K.AHBL.DM/Core_RTL
 $ make -f Makefile.rv32imc.DM MEMSIZE=32K compile_core
-$
-$ # To compile the debug module - RTL will be placed in DM_RTL
+
+# To compile the debug module - RTL will be placed in DM_RTL
 $ make -f Makefile.rv32imc.DM compile_dm
 ```
 
