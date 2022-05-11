@@ -12,7 +12,7 @@
 
 .PHONY: help
 help:
-	@echo 'Please ensure that you define MCU_INSTALL and TEST'
+	@echo 'Please ensure that you define MCU_DEMO and TEST'
 	@echo ''
 	@echo '    make  simulator    Compiles and links intermediate files/RTL to create simulation executable'
 	@echo '                           (Bluesim, verilator or iverilog)'
@@ -27,12 +27,12 @@ all: compile  simulator
 
 # ================================================================
 # User defined variables
-MCU_INSTALL ?= $$MCU_INSTALL
+MCU_DEMO ?= $$MCU_DEMO
 TEST ?= PLEASE_DEFINE_PATH_TO_ELF
 
 # ================================================================
 # Other variables
-RV_DV_TEST = $(MCU_INSTALL)/tests/generated
+RV_DV_TEST = $(MCU_DEMO)/tests/generated
 TOPMODULE = mkTop_HW_Side
 
 # ================================================================
@@ -41,14 +41,14 @@ TOPMODULE = mkTop_HW_Side
 
 .PHONY: run_test
 run_test:
-	$(MCU_INSTALL)/scripts/Elf_to_Hex/elfhex.sh -e $(TEST) -m $(MEMSIZE) -i $(IBASE_ADDR) -d $(DBASE_ADDR) -w 32
+	$(MCU_DEMO)/scripts/Elf_to_Hex/elfhex.sh -e $(TEST) -m $(MEMSIZE) -i $(IBASE_ADDR) -d $(DBASE_ADDR) -w 32
 	rm .*.hex32
 	rm *.hex32
 	./exe_HW_sim  +exit +tohost
 
 .PHONY: run_test_waves
 run_test_waves:
-	$(MCU_INSTALL)/scripts/Elf_to_Hex/elfhex.sh -e $(TEST) -m $(MEMSIZE) -i $(IBASE_ADDR) -d $(DBASE_ADDR) -w 32
+	$(MCU_DEMO)/scripts/Elf_to_Hex/elfhex.sh -e $(TEST) -m $(MEMSIZE) -i $(IBASE_ADDR) -d $(DBASE_ADDR) -w 32
 	rm .*.hex32
 	rm *.hex32
 	./exe_HW_sim  +exit +trace +tohost
@@ -61,12 +61,12 @@ run_test_waves:
 run_riscv_dv_test:
 	@echo "Running pseudo-random RISC-V DV test pattern"
 	@echo "Running $(TEST) on HW"
-	$(MCU_INSTALL)/scripts/Elf_to_Hex/elfhex.sh -e $(RV_DV_TEST)/asm_test/$(TEST).o -m $(MEMSIZE) -d $(DBASE_ADDR) -i $(IBASE_ADDR) -w 32
+	$(MCU_DEMO)/scripts/Elf_to_Hex/elfhex.sh -e $(RV_DV_TEST)/asm_test/$(TEST).o -m $(MEMSIZE) -d $(DBASE_ADDR) -i $(IBASE_ADDR) -w 32
 	./exe_HW_sim +exit +tohost | grep "instret" | awk '{ print $$2, $$3 }' | tee -a ./$(TEST).hw.log
 	sed -i 's/instr://' ./$(TEST).hw.log
 	sed -i 's/PC://'    ./$(TEST).hw.log
 	@echo "Running $(TEST) on Spike"
-	$(MCU_INSTALL)/scripts/run_and_cmp_spike $(RV_DV_TEST)/asm_test/$(TEST).o ./$(TEST).spike.log ./$(TEST).hw.log
+	$(MCU_DEMO)/scripts/run_and_cmp_spike $(RV_DV_TEST)/asm_test/$(TEST).o ./$(TEST).spike.log ./$(TEST).hw.log
 
 
 # ================================================================

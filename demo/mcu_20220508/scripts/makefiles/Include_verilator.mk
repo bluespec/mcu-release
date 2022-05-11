@@ -25,7 +25,7 @@ VERILATOR_FLAGS = --stats -O3 -CFLAGS -O3 --x-assign fast --x-initial fast --noa
 VERILATOR_FLAGS += --trace  --trace-depth 20  -CFLAGS -DVM_TRACE
 
 VTOP                = V$(TOPMODULE)_edited
-VERILATOR_RESOURCES = $(MCU_INSTALL)/scripts/makefiles/Verilator_resources
+VERILATOR_RESOURCES = $(MCU_DEMO)/scripts/makefiles/Verilator_resources
 
 .PHONY: simulator
 simulator:

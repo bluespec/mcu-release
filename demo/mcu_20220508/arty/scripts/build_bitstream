@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Build the bitstream given a Vivado project
-# This script checks for and expect $MCU_INSTALL to be set
+# This script checks for and expect $MCU_DEMO to be set
 
 # Command line processing
 usage () {

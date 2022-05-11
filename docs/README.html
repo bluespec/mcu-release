@@ -481,13 +481,13 @@ When the fabric is a variable is represented by <code>&lt;F&gt;</code> in this d
 Please ensure that you are able to clone the submodules recursively.</p>
 </div>
 <div class="paragraph">
-<p><code>$MCU_REPO</code> points to the base of this repository, and <code>$MCU_INSTALL</code> points to <code>$MCU_REPO/demo/mcu_yyyymmdd</code>.</p>
+<p><code>$MCU_REPO</code> points to the base of this repository, and <code>$MCU_DEMO</code> points to <code>$MCU_REPO/demo/mcu_yyyymmdd</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code>$ cd mcu-release
 $ export MCU_REPO=$(pwd)
-$ export MCU_INSTALL=$MCU_REPO/demo/mcu_20220508
+$ export MCU_DEMO=$MCU_REPO/demo/mcu_20220508
 $ cd $MCU_REPO
 $ git submodule update --init --recursive</code></pre>
 </div>
@@ -636,10 +636,11 @@ The <code>compile_dm</code>, <code>compile_plic</code> and <code>compile_clint</
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code>$ cd $MCU_REPO/build
-$ # RTL will be placed in MCU.32K.AHBL.DM/Core_RTL
+
+# RTL will be placed in MCU.32K.AHBL.DM/Core_RTL
 $ make -f Makefile.rv32imc.DM MEMSIZE=32K compile_core
-$
-$ # To compile the debug module - RTL will be placed in DM_RTL
+
+# To compile the debug module - RTL will be placed in DM_RTL
 $ make -f Makefile.rv32imc.DM compile_dm</code></pre>
 </div>
 </div>
@@ -659,21 +660,21 @@ Please run <code>make clean</code> between compile commands to clean up intermed
 <h3 id="_step_5_pre_built_configurations">Step 5: Pre-built configurations</h3>
 <div class="paragraph">
 <p>The <code>$MCU_REPO/demo</code> folder has pre-built configurations and demo systems built around these configurations.
-<code>$MCU_INSTALL</code> points to the latest demo, <code>$MCU_REPO/demo/mcu_20220508</code>.</p>
+<code>$MCU_DEMO</code> points to the latest demo, <code>$MCU_REPO/demo/mcu_20220508</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code>$ export MCU_INSTALL=$MCU_REPO/demo/mcu_20220508</code></pre>
+<pre class="highlight"><code>$ export MCU_DEMO=$MCU_REPO/demo/mcu_20220508</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><code>$MCU_INSTALL/arty</code> demonstrates a working system on the Arty A7-100T board and can serve as a template on how to integrate the MCU, Debug Module, a Loader, and AHB-L peripherals into a working system.</p>
+<p><code>$MCU_DEMO/arty</code> demonstrates a working system on the Arty A7-100T board and can serve as a template on how to integrate the MCU, Debug Module, a Loader, and AHB-L peripherals into a working system.</p>
 </div>
 <div class="paragraph">
 <p>An annotated block diagram is available in <code>$MCU_REPO/docs/MCU_Sys_Integration.pdf</code></p>
 </div>
 <div class="paragraph">
-<p>Please refer to $MCU_INSTALL/README.html for further details about the demo and its features.</p>
+<p>Please refer to $MCU_DEMO/README.html for further details about the demo and its features.</p>
 </div>
 </div>
 <div class="sect2">
@@ -723,7 +724,7 @@ Please run <code>make clean</code> between compile commands to clean up intermed
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-05-10 21:02:53 +0530
+Last updated 2022-05-11 07:48:35 +0530
 </div>
 </div>
 </body>

@@ -27,12 +27,12 @@ This repository also includes reference designs that simulate in verilator, or e
 This repository uses submodules.
 Please ensure that you are able to clone the submodules recursively. 
 
-`$MCU_REPO` points to the base of this repository, and `$MCU_INSTALL` points to `$MCU_REPO/demo/mcu_yyyymmdd`.
+`$MCU_REPO` points to the base of this repository, and `$MCU_DEMO` points to `$MCU_REPO/demo/mcu_yyyymmdd`.
 
 ```
 $ cd mcu-release
 $ export MCU_REPO=$(pwd)
-$ export MCU_INSTALL=$MCU_REPO/demo/mcu_20220508
+$ export MCU_DEMO=$MCU_REPO/demo/mcu_20220508
 $ cd $MCU_REPO
 $ git submodule update --init --recursive
 ```
@@ -105,17 +105,17 @@ NOTE: Please run `make clean` between compile commands to clean up intermediate 
 === Step {counter:installSteps}: Pre-built configurations
 
 The `$MCU_REPO/demo` folder has pre-built configurations and demo systems built around these configurations.
-`$MCU_INSTALL` points to the latest demo, `$MCU_REPO/demo/mcu_20220508`.
+`$MCU_DEMO` points to the latest demo, `$MCU_REPO/demo/mcu_20220508`.
 
 ```
-$ export MCU_INSTALL=$MCU_REPO/demo/mcu_20220508
+$ export MCU_DEMO=$MCU_REPO/demo/mcu_20220508
 ```
 
-`$MCU_INSTALL/arty` demonstrates a working system on the Arty A7-100T board and can serve as a template on how to integrate the MCU, Debug Module, a Loader, and AHB-L peripherals into a working system.
+`$MCU_DEMO/arty` demonstrates a working system on the Arty A7-100T board and can serve as a template on how to integrate the MCU, Debug Module, a Loader, and AHB-L peripherals into a working system.
 
 An annotated block diagram is available in `$MCU_REPO/docs/MCU_Sys_Integration.pdf`
 
-Please refer to $MCU_INSTALL/README.html for further details about the demo and its features.
+Please refer to $MCU_DEMO/README.html for further details about the demo and its features.
 
 === Directory Structure
 

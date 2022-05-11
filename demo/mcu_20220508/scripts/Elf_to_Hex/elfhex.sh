@@ -2,14 +2,14 @@
 
 # -------------------------------------------------------------------------
 # Runs the elf-to-hex script for split memories.
-# MCU_INSTALL points to the new release. All paths are relative to
-# it. This script and friends are housed in $MCU_INSTALL/tools/Elf_to_Hex
+# MCU_DEMO points to the new release. All paths are relative to
+# it. This script and friends are housed in $MCU_DEMO/tools/Elf_to_Hex
 # -------------------------------------------------------------------------
 
 usage()
 {
     echo "usage: elfhex.sh [[-e elf_file ] [-m mem-size] [-b mem-base] [-w mem-width] | [-h]]"
-    echo "Please ensure MCU_INSTALL points to your MCU installation folder" 
+    echo "Please ensure MCU_DEMO points to your MCU installation folder" 
 }
 
 
@@ -40,7 +40,7 @@ while [ "$1" != "" ]; do
     shift
 done
 
-TOOLS_DIR=$MCU_INSTALL/scripts
+TOOLS_DIR=$MCU_DEMO/scripts
 
 # Step 1. Split elf into section wise hex files (32-bit hex)
 ${TOOLS_DIR}/Elf_to_Hex/Elf_to_Hex32.exe ${elf_input}

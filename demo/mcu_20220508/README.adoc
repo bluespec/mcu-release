@@ -24,7 +24,7 @@ Reading and writing the GPIO is done through ordinary load and store instruction
 == Directory Structure
 
 ```
-$MCU_INSTALL
+$MCU_DEMO
 |
 `-- MCU.<A>.<M>K.<F>.DM : MCU (with debug module) (<A> = RV arch)
 |   |                     (<M> = mem-size KB)     (<F> = SoC Fabric)
@@ -60,7 +60,7 @@ The SoC is constructed using Vivado block design.
 
 To run the demo, program the pre-built bit file (`run/arty.bit`) into the Arty FPGA.
 ```
-$ cd $MCU_INSTALL/arty/run
+$ cd $MCU_DEMO/arty/run
 $ ../scripts/program_fpga arty.bit
 ```
 
@@ -69,7 +69,7 @@ Once the programming completes, the `LD0` LED will blink on the board. This indi
 To interact with the CPU or perhaps load another program via GDB, connect GDB and halt the CPU:
 
 ```
-$ cd $MCU_INSTALL/arty/run
+$ cd $MCU_DEMO/arty/run
 $ riscv32-unknown-elf-gdb --command init_32.gdb
 ```
 
@@ -81,7 +81,7 @@ The demo is also meant to serve as a reference on integrating the mkBSDebug and 
 In order to access the Vivado block design, first create the Vivado project for the demo SoC and then open the block design using Vivado. Here, we are using the name `demo_soc` for the project.
 
 ```
-$ cd $MCU_INSTALL/arty
+$ cd $MCU_DEMO/arty
 $ ./scripts/create_soc_project -p demo_soc
 $ vivado ./demo_soc/demo_soc.xpr
 ```
@@ -89,7 +89,7 @@ $ vivado ./demo_soc/demo_soc.xpr
 To build the bitfile using the above project:
 
 ```
-$ cd $MCU_INSTALL/arty
+$ cd $MCU_DEMO/arty
 $ ./scripts/build_bitstream -p demo_soc
 ```
 
@@ -99,7 +99,7 @@ $ ./scripts/build_bitstream -p demo_soc
 
 ```
 $ export PATH=/opt/bluespec/riscvtoolchain-1.202109.2.1/bin:"$PATH"
-$ cd $MCU_INSTALL/tests/blinky
+$ cd $MCU_DEMO/tests/blinky
 $ make all <IBASE_ADDR=0xC0000000> <DBASE_ADDR=0xC8000000> <ARCH=<A>>
 $ make main.text  #(optional to build disassembly)
 $ make size #(optional to check the size of the generated elf)
@@ -107,7 +107,7 @@ $ make size #(optional to check the size of the generated elf)
 
 The same instructions can be used to compile the other test programs -- `clint_smoketest` and `plic_smoketest`.
 
-NOTE: Changing the `DLY` value in `$MCU_INSTALL/tests/blinky/main.c` will alter the length of the delay loops. You can use this mechanism to vary `blinky`'s overall run-time.
+NOTE: Changing the `DLY` value in `$MCU_DEMO/tests/blinky/main.c` will alter the length of the delay loops. You can use this mechanism to vary `blinky`'s overall run-time.
 
 === Step {counter:relInstall}: Run the GPIO blinky simulation
 
@@ -118,13 +118,13 @@ The `blinky` test runs on `Sim_RTL`, `plic_smoketest` runs on `Sim_PLIC_RTL` and
 
 ==== Building new simulators
 
-`$MCU_INSTALL/scripts/makefiles` contains a sample makefile to build your simulators using Verilator.
+`$MCU_DEMO/scripts/makefiles` contains a sample makefile to build your simulators using Verilator.
 If you are adding/modifying RTL files, add them to `Sim_RTL` (or `Sim_CLINT_RTL` or `Sim_PLIC_RTL`) before proceeding with the `make.`
 
 If you are adding new C routines, you need to add the appropriate DPI calls to `Verilator_resources/src_C.`
 
 ```
-$ cd $MCU_INSTALL/MCU.<A>.<M>K.<F> # Will also work for MCU.<A>.<M>K.<F>.DM
+$ cd $MCU_DEMO/MCU.<A>.<M>K.<F> # Will also work for MCU.<A>.<M>K.<F>.DM
 $ make simulator <SIM_RTL=Sim_RTL/Sim_PLIC_RTL/Sim_CLINT_RTL>
 ```
 
@@ -142,13 +142,13 @@ The simulation starts and opens a connection on TCP port `5555` listening for a 
 In the first terminal, run the same make command as shown in <<Simulating MCU with no Debug Module>> (the example assumes a system with 16KB TCM that uses AHBL):
 
 ```
-$ cd $MCU_INSTALL/MCU.16K.AHBL.DM
-$ make run_test TEST=$MCU_INSTALL/tests/blinky/main MEMSIZE=16
+$ cd $MCU_DEMO/MCU.16K.AHBL.DM
+$ make run_test TEST=$MCU_DEMO/tests/blinky/main MEMSIZE=16
 ```
 
 In the second terminal:
 ```
-$ cd $MCU_INSTALL/MCU.16K.AHBL.DM/run
+$ cd $MCU_DEMO/MCU.16K.AHBL.DM/run
 $ riscv32-unknown-elf-gdb --command init_32.gdb
 ```
 
@@ -196,8 +196,8 @@ These scripts have been tested with Vivado 2019.1.
 Let's assume we are synthesizing for a clock frequency of 100 MHz (10 ns clock period), using the default board/device (Arty A7-100).
 
 ```
-$ cd $MCU_INSTALL/synth/xilinx
-$ ./run_synth.sh -c 10.0 -t mkBSCore -f $MCU_INSTALL/MCU.rv32imc.64K.AHBL.DM/Core_RTL -j 4 
+$ cd $MCU_DEMO/synth/xilinx
+$ ./run_synth.sh -c 10.0 -t mkBSCore -f $MCU_DEMO/MCU.rv32imc.64K.AHBL.DM/Core_RTL -j 4 
 ```
 
 The last argument, `-j 4`, instructs Vivado to run up to four jobs in parallel.
@@ -215,8 +215,8 @@ In the example below, we are synthesizing for a clock frequency of 50 MHz (20 ns
 The FPGA device in these scripts has been fixed to SmartFusion2 M2S090T FPGA.
 
 ```
-$ cd $MCU_INSTALL/synth/microsemi
-$ ./run_synth.sh -c 20.0 -t mkBSCore -f $MCU_INSTALL/MCU.rv32ic.64K.AHBL.DM/Core_RTL
+$ cd $MCU_DEMO/synth/microsemi
+$ ./run_synth.sh -c 20.0 -t mkBSCore -f $MCU_DEMO/MCU.rv32ic.64K.AHBL.DM/Core_RTL
 ```
 
 Libero runs inside a synthesis work-area created by `run_synth.sh`.

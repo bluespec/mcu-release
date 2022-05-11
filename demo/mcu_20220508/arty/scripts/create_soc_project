@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Build the Vivado project to synthesize the SoC.
-# This script checks for and expect $MCU_INSTALL to be set
+# This script checks for and expect $MCU_DEMO to be set
 
-if [[ -z "$MCU_INSTALL" ]] 
+if [[ -z "$MCU_DEMO" ]] 
 then
-   echo "create_soc_project: MCU_INSTALL undefined."
+   echo "create_soc_project: MCU_DEMO undefined."
    exit 1
 fi
 
