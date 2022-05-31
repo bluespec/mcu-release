@@ -5,12 +5,11 @@
 .PHONY: help
 help:
 	@echo '------------------------'
-	@echo 'MCU Makefile for configurations with Debug Module'
+	@echo 'MCU Makefile for configurations without Debug Module'
 	@echo '------------------------'
 	@echo ''
 	@echo 'Synthesis Targets'
 	@echo '    make  compile_core 		Generate MCU (BSCore) RTL (with loader)'
-	@echo '    make  compile_dm   		Generate BSDebug RTL'
 	@echo '    make  compile_clint		Generate CLINT RTL'
 	@echo '    make  compile_plic 		Generate PLIC RTL'
 	@echo '    make  compile_soc  		Generate SoC to test basic function with loader'
@@ -61,10 +60,6 @@ BSC_COMPILATION_FLAGS += \
 	-D FABRIC32    \
 	-D FABRIC_$(FABRIC) \
 	-D MIN_CSR \
-	-D INCLUDE_GDB_CONTROL \
-	-D JTAG_TAP \
-	-D XILINX_BSCAN \
-	-D XILINX_XC7K325T \
 
 # ================================================================
 # Search path for bsc for .bsv files
@@ -112,12 +107,9 @@ BSC_COMPILATION_FLAGS += \
 RTL_BDIRS = -bdir build_dir  -info-dir build_dir
 
 CFG_DIR:
-	mkdir -p MCU.$(MEMSIZE).AHBL.DM
+	mkdir -p MCU.$(MEMSIZE).AHBL
 
 build_dir:
-	mkdir -p $@
-
-DM_RTL:
 	mkdir -p $@
 
 PLIC_RTL:
@@ -153,20 +145,10 @@ compile_core:  build_dir CFG_DIR Core_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating MCU Core (mkBSCore) RTL (with loader) ..."
 	bsc -u -elab -verilog -vdir Core_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) -D TCM_LOADER -D SYNTHESIS -D MICROSEMI $(BSC_PATH)  $(CORE_TOP_FILE)
-	rm Core_RTL/mkDummy_Mem_Server.v Core_RTL/mkShifter_Box.v
+	rm Core_RTL/mkShifter_Box.v
 	for f in FIFO2.v FIFO20.v FIFO10.v FIFO1.v SizedFIFO.v BRAM2.v BRAM2BE.v RegFile.v MakeResetA.v SyncResetA.v; do cp src_bsc_lib_rtl/$$f Core_RTL/; done
-	mv Core_RTL MCU.$(MEMSIZE).AHBL.DM/
+	mv Core_RTL MCU.$(MEMSIZE).AHBL/
 	date +"(%F %T) Generated RTL into Core_RTL"
-	@echo '-------------------------'
-
-.PHONY: compile_dm
-compile_dm:  build_dir  DM_RTL
-	@echo '-------------------------'
-	date +"(%F %T) Generating RISC-V Debug Module (mkBSDebug) RTL ..."
-	bsc -u -elab -verilog -vdir DM_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) $(BSC_PATH)  $(DM_TOP_FILE)
-	rm DM_RTL/mkSoC_Map.v DM_RTL/mkJtag.v
-	for f in FIFO2.v FIFO20.v FIFO1.v SyncFIFOLevel.v ASSIGN1.v ResetInverter.v SyncHandshake.v SyncWire.v SyncResetA.v MakeResetA.v; do cp src_bsc_lib_rtl/$$f DM_RTL/; done
-	date +"(%F %T) Generated RTL into DM_RTL"
 	@echo '-------------------------'
 
 .PHONY: compile_clint
@@ -192,7 +174,7 @@ compile_sim_clint:   build_dir CFG_DIR Sim_CLINT_RTL
 	date +"(%F %T) Generating Sim RTL to test with CLINT ..."
 	bsc -u -elab -verilog -vdir Sim_CLINT_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS)  -D WATCH_TOHOST  -D TEST_CLINT $(BSC_PATH)  $(SIM_TOP_FILE)
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_CLINT_RTL/
-	mv Sim_CLINT_RTL MCU.$(MEMSIZE).AHBL.DM/
+	mv Sim_CLINT_RTL MCU.$(MEMSIZE).AHBL/
 	date +"(%F %T) Generated RTL into Sim_CLINT_RTL"
 	@echo '-------------------------'
 
@@ -202,7 +184,7 @@ compile_sim_plic:  build_dir CFG_DIR Sim_PLIC_RTL
 	date +"(%F %T) Generating Sim RTL to test with PLIC ..."
 	bsc -u -elab -verilog -vdir Sim_PLIC_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS)  -D WATCH_TOHOST  -D TEST_PLIC $(BSC_PATH)  $(SIM_TOP_FILE)
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_PLIC_RTL/
-	mv Sim_PLIC_RTL MCU.$(MEMSIZE).AHBL.DM/
+	mv Sim_PLIC_RTL MCU.$(MEMSIZE).AHBL/
 	date +"(%F %T) Generated RTL into Sim_PLIC_RTL"
 	@echo '-------------------------'
 
@@ -212,7 +194,7 @@ compile_sim:  build_dir CFG_DIR Sim_RTL
 	date +"(%F %T) Generating Sim RTL to test basic functionalty ..."
 	bsc -u -elab -verilog -vdir Sim_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS -D WATCH_TOHOST -D TEST_GPIO $(BSC_PATH) $(SIM_TOP_FILE)
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_RTL/
-	mv Sim_RTL MCU.$(MEMSIZE).AHBL.DM/
+	mv Sim_RTL MCU.$(MEMSIZE).AHBL/
 	date +"(%F %T) Generated RTL into Sim_RTL"
 	@echo '-------------------------'
 
@@ -222,7 +204,7 @@ compile_sim_loader:  build_dir CFG_DIR Sim_RTL
 	date +"(%F %T) Generating Sim RTL to test basic functionalty (with loader) ..."
 	bsc -u -elab -verilog -vdir Sim_LDR_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) -D MICROSEMI -D TCM_LOADER -D WATCH_TOHOST -D TEST_GPIO $(BSC_PATH)  $(SIM_TOP_FILE)
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_LDR_RTL/
-	mv Sim_LDR_RTL MCU.$(MEMSIZE).AHBL.DM/
+	mv Sim_LDR_RTL MCU.$(MEMSIZE).AHBL/
 	date +"(%F %T) Generated RTL into Sim_LDR_RTL"
 	@echo '-------------------------'
 
@@ -232,18 +214,17 @@ compile_sim_rtos:  build_dir CFG_DIR Sim_RTOS_RTL
 	date +"(%F %T) Generating Sim RTL that runs FreeRTOS (SoC must be rtos-soc)"
 	bsc -u -elab -verilog -vdir Sim_RTOS_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) -D WATCH_TOHOST -D TEST_UART $(BSC_PATH) $(SIM_TOP_FILE)
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_RTOS_RTL/
-	mv Sim_RTOS_RTL MCU.$(MEMSIZE).AHBL.DM/
+	mv Sim_RTOS_RTL MCU.$(MEMSIZE).AHBL/
 	date +"(%F %T) Generated RTL into Sim_RTOS_RTL"
 	@echo '-------------------------'
 
 .PHONY: compile_soc
 compile_soc:   build_dir CFG_DIR SoC_RTL
 	@echo '-------------------------'
-	date +"(%F %T) Generating SoC RTL with GPIO to emulate basic functionality ..."
-	bsc -u -elab -verilog -vdir SoC_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) -D TEST_GPIO -D SYNTHESIS -D MICROSEMI -D TCM_LOADER $(BSC_PATH) $(SoC_TOP_FILE)
+	date +"(%F %T) Generating SoC RTL with GPIO to emulate basic functionality (no loader) ..."
+	bsc -u -elab -verilog -vdir SoC_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) -D TEST_GPIO -D SYNTHESIS $(BSC_PATH) $(SoC_TOP_FILE)
 	for f in FIFO2.v FIFO20.v FIFO10.v FIFO1.v SizedFIFO.v BRAM2.v BRAM2BE.v RegFile.v MakeResetA.v SyncResetA.v; do cp src_bsc_lib_rtl/$$f SoC_RTL/; done
-	for f in SyncFIFOLevel.v ASSIGN1.v ResetInverter.v SyncHandshake.v SyncWire.v; do cp src_bsc_lib_rtl/$$f SoC_RTL/; done
-	mv SoC_RTL MCU.$(MEMSIZE).AHBL.DM/
+	mv SoC_RTL MCU.$(MEMSIZE).AHBL/
 	date +"(%F %T) Generated RTL into SoC_RTL"
 	@echo '-------------------------'
 
@@ -255,6 +236,6 @@ clean:
 
 .PHONY: full_clean
 full_clean: clean
-	rm -r -f  *.log CLINT_RTL PLIC_RTL DM_RTL MCU.$(MEMSIZE).AHBL.DM
+	rm -r -f  *.log CLINT_RTL PLIC_RTL MCU.$(MEMSIZE).AHBL
 
 # ================================================================
