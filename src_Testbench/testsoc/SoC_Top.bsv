@@ -80,6 +80,12 @@ interface SoC_Top_IFC;
    method Fabric_Data mv_tohost_value;
 `endif
 
+`ifndef SYNTHESIS
+   // ----------------
+   // Debugging: set mcu's verbosity
+   method Action  set_verbosity (Bit #(2)  verbosity);
+`endif
+
 endinterface
 
 // ================================================================
@@ -111,9 +117,9 @@ module mkSoC_Top (SoC_Top_IFC);
    // ----------------
    (*doc="MCU Core"*)
 `ifdef INCLUDE_GDB_CONTROL
-   MCUTop_IFC core <- mkMCUTop (dmi_reset);
+   MCUTop_IFC mcu <- mkMCUTop (dmi_reset);
 `else
-   MCUTop_IFC core <- mkMCUTop;
+   MCUTop_IFC mcu <- mkMCUTop;
 `endif
 
    // ----------------
@@ -140,15 +146,15 @@ module mkSoC_Top (SoC_Top_IFC);
 
 `ifdef TEST_CLINT
    // CPU Mem master to CLINT
-   mkConnection (core.master1,  clint.fabric);
+   mkConnection (mcu.master1,  clint.fabric);
 `endif
 `ifdef TEST_PLIC
    // CPU Mem master to PLIC
-   mkConnection (core.master1,  plic.fabric);
+   mkConnection (mcu.master1,  plic.fabric);
 `endif
 `ifdef TEST_GPIO
    // CPU Mem master to GPIO
-   mkConnection (core.master1,  gpio.target);
+   mkConnection (mcu.master1,  gpio.target);
 `endif
 
 
@@ -156,9 +162,9 @@ module mkSoC_Top (SoC_Top_IFC);
    (*doc= "NOTE: A device to test TCM Loader function" *)
    Loader_IFC loader <- mkLoader;
 
-   mkConnection (loader.toFabric, core.dma_server);
-   mkConnection (loader.cpu_halt, core.cpu_halt);
-   mkConnection (loader.reset_done, core.reset_done);
+   mkConnection (loader.toFabric, mcu.dma_server);
+   mkConnection (loader.cpu_halt, mcu.cpu_halt);
+   mkConnection (loader.reset_done, mcu.reset_done);
 `endif
 
    // The address decoder of the AHBL. There is only one target on this
@@ -184,14 +190,14 @@ module mkSoC_Top (SoC_Top_IFC);
    // Interrupt pins: Unused in this SoC
    (* no_implicit_conditions, fire_when_enabled *)
    rule rl_tieoff;
-      core.s_external_interrupt_req (False);
+      mcu.s_external_interrupt_req (False);
    endrule
 `endif
 
 `ifdef TEST_PLIC
    (* no_implicit_conditions, fire_when_enabled *)
    rule rl_connect_plic_tgt;
-      core.m_external_interrupt_req (plic.v_targets[0].m_eip);
+      mcu.m_external_interrupt_req (plic.v_targets[0].m_eip);
    endrule
 
    (* no_implicit_conditions, fire_when_enabled *)
@@ -206,29 +212,29 @@ module mkSoC_Top (SoC_Top_IFC);
    endrule
 `else
    rule rl_connect_plic_tgt;
-      core.m_external_interrupt_req (False);
+      mcu.m_external_interrupt_req (False);
    endrule
 `endif
 
 `ifdef TEST_CLINT
-   (* no_implicit_conditions, fire_when_enabled *)
    rule rl_connect_clint_sint;
-      core.software_interrupt_req (clint.sw_interrupt_pending);
+      let x <- clint.get_sw_interrupt_req.get ();
+      mcu.software_interrupt_req (x);
    endrule
 
-   (* no_implicit_conditions, fire_when_enabled *)
    rule rl_connect_clint_tint;
-      core.timer_interrupt_req (clint.timer_interrupt_pending);
+      let x <- clint.get_timer_interrupt_req.get ();
+      mcu.timer_interrupt_req (x);
    endrule
 `else
    (* no_implicit_conditions, fire_when_enabled *)
    rule rl_connect_clint_sint;
-      core.software_interrupt_req (False);
+      mcu.software_interrupt_req (False);
    endrule
 
    (* no_implicit_conditions, fire_when_enabled *)
    rule rl_connect_clint_tint;
-      core.timer_interrupt_req (False);
+      mcu.timer_interrupt_req (False);
    endrule
 `endif
 
@@ -269,17 +275,27 @@ module mkSoC_Top (SoC_Top_IFC);
 `endif
 
 `ifdef INCLUDE_GDB_CONTROL
-   interface JTAG_IFC jtag = core.jtag;
+   interface JTAG_IFC jtag = mcu.jtag;
 `endif
 
 `ifdef WATCH_TOHOST
    // For ISA tests: watch memory writes to <tohost> addr
    method Action set_watch_tohost (Bool  watch_tohost, Fabric_Addr  tohost_addr);
-      core.set_watch_tohost (watch_tohost, tohost_addr);
+      mcu.set_watch_tohost (watch_tohost, tohost_addr);
    endmethod
 
-   method Fabric_Data mv_tohost_value = core.mv_tohost_value;
+   method Fabric_Data mv_tohost_value = mcu.mv_tohost_value;
 `endif
+
+   // ----------------------------------------------------------------
+   // Misc. control and status
+
+`ifndef SYNTHESIS
+   method Action  set_verbosity (Bit #(2)  verbosity);
+      mcu.set_verbosity (verbosity);
+   endmethod
+`endif
+
 
 endmodule: mkSoC_Top
 

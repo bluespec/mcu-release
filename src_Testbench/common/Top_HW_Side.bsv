@@ -82,6 +82,13 @@ module mkTop_HW_Side (Empty) ;
 
       rg_banner_printed <= True;
 
+      // Set CPU verbosity and logdelay (simulation only)
+      Bool v1 <- $test$plusargs ("v1");
+      Bool v2 <- $test$plusargs ("v2");
+      Bool v3 <- $test$plusargs ("v3");
+      Bit #(2)  verbosity = (v3 ? 3 : ((v2 ? 2 : (v1 ? 1 : 0))));
+      soc_top.set_verbosity  (verbosity);
+
 `ifdef WATCH_TOHOST
       // ----------------
       // Load tohost addr from symbol-table file
@@ -109,6 +116,34 @@ module mkTop_HW_Side (Empty) ;
       else               $display ("    FAIL <test_%0d>", test_num);
 
       $finish (0);
+   endrule
+`endif
+
+`ifdef TEST_UART
+   // ================================================================
+   // UART console I/O
+
+   // Relay system console output to terminal
+
+   rule rl_relay_console_out;
+      let ch <- soc_top.get_to_console.get;
+      $write ("%c", ch);
+      $fflush (stdout);
+   endrule
+
+   // Poll terminal input and relay any chars into system console input.
+   // Note: rg_console_in_poll is used to poll only every N cycles, whenever it wraps around to 0.
+
+   Reg #(Bit #(12)) rg_console_in_poll <- mkReg (0);
+
+   rule rl_relay_console_in;
+      if (rg_console_in_poll == 0) begin
+	 Bit #(8) ch <- c_trygetchar (?);
+	 if (ch != 0) begin
+	    soc_top.put_from_console.put (ch);
+	 end
+      end
+      rg_console_in_poll <= rg_console_in_poll + 1;
    endrule
 `endif
 

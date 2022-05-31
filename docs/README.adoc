@@ -58,8 +58,14 @@ Compiler, simulator and tools for the Bluespec Hardware Description Language are
 
 == Step {counter:installSteps}: Building the MCU from source
 
-This repository can be used to generate several different configurations of the MCU CPU.
-The `build/Makefile.rv32imc.DM` makefile is configured to generate MCUs that:
+This repository can be used to generate several different
+configurations of the MCU CPU.  Two makefiles are included in the
+build directory - `build/Makefile.rv32imc.DM` generates
+configuations with support for a RISC-V debug module, while
+`build/Makefile.rv32imc.dm` generates configuration without debug
+module support.
+
+The features supported in the build configurations are:
 
 * implement the RV32IMC architecture
 * implement a serial multiplier and a logarithmic shifter
@@ -74,14 +80,16 @@ The makefile implements the following targets:
 [cols="15,~"]
 |===
 | Target             | Description
-| `compile_core`     | Compiles the MCU CPU and generates the `mkBSCore`. RTL created in `MCU.<M>K.AHBL.DM/Core_RTL`. The make variable `MEMSIZE` can be used to change the TCM size. The default value is 16KB.
+| `compile_core`     | Compiles the MCU CPU and generates the
+`mkBSCore`. RTL created in `MCU.<M>K.AHBL[.DM]/Core_RTL`. The make variable `MEMSIZE` can be used to change the TCM size. The default value is 16KB.
 | `compile_dm`       | Compiles the RISC-V Debug Module and generates the `mkBSDebug`. RTL created in `DM_RTL`
 | `compile_plic`     | Compiles the RISC-V PLIC and generates the `mkPLIC_16_1_7`. RTL created in `PLIC_RTL`. The PLIC is configured to have 16 source interrupts, 1 target interrupt and 7 priority levels.
 | `compile_clint`    | Compiles the RISC-V CLINT and generates the `mkCLINT_AHBL`. RTL created in `CLINT_RTL`.
 | `compile_soc`      | Compiles a test SoC that integrates `mkBSCore`, `mkBSDebug`, a loader device and a GPIO device. This SoC is also used as the demo SoC on the Arty board. RTL created in `MCU.<M>K.AHBL.DM/SoC_RTL`.
-| `compile_sim`      | Compiles a simulation version of the test SoC that can run on Verilator. RTL created in `MCU.<M>K.AHBL.DM/Sim_RTL`.
-| `compile_sim_clint`| Compiles a simulation version of the test SoC that also integrates the CLINT. RTL created in `MCU.<M>K.AHBL.DM/Sim_CLINT_RTL`.
-| `compile_sim_plic` | Compiles a simulation version of the test SoC that also integrates the PLIC. RTL created in `MCU.<M>K.AHBL.DM/Sim_PLIC_RTL`.
+| `compile_sim`      | Compiles a simulation version of the test SoC that can run on Verilator. RTL created in `MCU.<M>K.AHBL[.DM]/Sim_RTL`.
+| `compile_sim_clint`| Compiles a simulation version of the test SoC that also integrates the CLINT. RTL created in `MCU.<M>K.AHBL[.DM]/Sim_CLINT_RTL`.
+| `compile_sim_plic` | Compiles a simulation version of the test SoC that also integrates the PLIC. RTL created in `MCU.<M>K.AHBL[.DM]/Sim_PLIC_RTL`.
+| `compile_sim_rtos` | Compiles a simulation version of a test SoC capable of running FreeRTOS. RTL created in `MCU.<M>.K.AHBL[.DM]/Sim_RTOS_RTL`
 |===
 
 The `make` commands must be executed from the `build` directory only.
@@ -116,6 +124,21 @@ $ export MCU_DEMO=$MCU_REPO/demo/mcu_20220508
 An annotated block diagram is available in `$MCU_REPO/docs/MCU_Sys_Integration.pdf`
 
 Please refer to $MCU_DEMO/README.html for further details about the demo and its features.
+
+=== Step {counter:installSteps}: FreeRTOS Demonstration
+
+The `$MCU_REPO/demo/questa-rtos` folder demonstrates a MCU based system
+running FreeRTOS using the Questa simulator. The TCM memory size is
+fixed to 1024KB to fit the FreeRTOS binary and has been generated
+using the following build command:
+
+```
+$ cd $MCU_REPO/build
+$ make -f Makefile.rv32imc.dm compile_sim_rtos MEMSIZE=1024K SoC=rtos-soc
+```
+
+To run the demo please follow the steps in
+`$MCU_REPO/demo/questa-rtos/README.adoc`
 
 === Directory Structure
 
