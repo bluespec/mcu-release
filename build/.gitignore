@@ -1,3 +1,4 @@
 *_RTL
 build_dir
 obj_dir
+MCU.*

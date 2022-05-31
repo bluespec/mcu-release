@@ -199,7 +199,7 @@ compile_sim:  build_dir CFG_DIR Sim_RTL
 	@echo '-------------------------'
 
 .PHONY: compile_sim_loader
-compile_sim_loader:  build_dir CFG_DIR Sim_RTL
+compile_sim_loader:  build_dir CFG_DIR Sim_LDR_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating Sim RTL to test basic functionalty (with loader) ..."
 	bsc -u -elab -verilog -vdir Sim_LDR_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) -D MICROSEMI -D TCM_LOADER -D WATCH_TOHOST -D TEST_GPIO $(BSC_PATH)  $(SIM_TOP_FILE)
