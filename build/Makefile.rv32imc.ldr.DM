@@ -5,22 +5,22 @@
 .PHONY: help
 help:
 	@echo '------------------------'
-	@echo 'MCU Makefile for configurations with Debug Module'
+	@echo 'MCU Makefile for configurations with Debug Module, without TCM Loader'
+	@echo 'TCM memories may be preloaded using memory files in simulation'
 	@echo '------------------------'
 	@echo ''
 	@echo 'Synthesis Targets'
-	@echo '    make  compile_core 		Generate MCU (BSCore) RTL (with loader)'
+	@echo '    make  compile_core 		Generate MCU (BSCore) RTL'
 	@echo '    make  compile_dm   		Generate BSDebug RTL'
 	@echo '    make  compile_clint		Generate CLINT RTL'
 	@echo '    make  compile_plic 		Generate PLIC RTL'
-	@echo '    make  compile_soc  		Generate SoC to test basic function with loader'
+	@echo '    make  compile_soc  		Generate SoC to test basic function'
 	@echo ''
 	@echo 'Simulation Targets'
-	@echo '    make  compile_sim_clint	Generate Sim SoC to test with CLINT (no loader)'
-	@echo '    make  compile_sim_plic 	Generate Sim SoC to test with PLIC (no loader)'
-	@echo '    make  compile_sim  		Generate Sim SoC to basic function (no loader)'
-	@echo '    make  compile_sim_loader	Generate Sim SoC to basic function with loader'
-	@echo '    make  compile_sim_rtos	Generate Sim SoC that run FreeRTOS (no loader)'
+	@echo '    make  compile_sim_clint	Generate Sim SoC to test with CLINT'
+	@echo '    make  compile_sim_plic 	Generate Sim SoC to test with PLIC'
+	@echo '    make  compile_sim  		Generate Sim SoC to basic function'
+	@echo '    make  compile_sim_rtos	Generate Sim SoC that run FreeRTOS'
 	@echo ''
 	@echo '    make  clean        		Remove intermediate build-files'
 	@echo '    make  full_clean   		Restore this directory to pristine state'
@@ -98,6 +98,9 @@ CLINT_TOP_MODULE = mkCLINT_AHBL
 PLIC_TOP_FILE   = $(PLIC_REPO)/src/PLIC_16_1_7.bsv
 PLIC_TOP_MODULE = mkPLIC_16_1_7
 
+CFG_DIR_NAME = MCU.$(MEMSIZE).AHBL.ldr.DM
+SRC_BSC_LIB_DIR = $(REPO)/build/src_bsc_lib_rtl
+
 # ================================================================
 # bsc compilation flags
 
@@ -112,7 +115,7 @@ BSC_COMPILATION_FLAGS += \
 RTL_BDIRS = -bdir build_dir  -info-dir build_dir
 
 CFG_DIR:
-	mkdir -p MCU.$(MEMSIZE).AHBL.DM
+	mkdir -p $(CFG_DIR_NAME)
 
 build_dir:
 	mkdir -p $@
@@ -135,9 +138,6 @@ Sim_CLINT_RTL:
 Sim_PLIC_RTL:
 	mkdir -p $@
 
-Sim_LDR_RTL:
-	mkdir -p $@
-
 Sim_RTOS_RTL:
 	mkdir -p $@
 
@@ -149,101 +149,91 @@ SoC_RTL:
 
 .SILENT:
 .PHONY: compile_core
-compile_core:  build_dir CFG_DIR Core_RTL
+compile_core: build_dir CFG_DIR Core_RTL
 	@echo '-------------------------'
-	date +"(%F %T) Generating MCU Core (mkBSCore) RTL (with loader) ..."
-	bsc -u -elab -verilog -vdir Core_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) -D TCM_LOADER -D SYNTHESIS -D MICROSEMI $(BSC_PATH)  $(CORE_TOP_FILE)
+	date +"(%F %T) Generating MCU Core (mkBSCore) RTL ..."
+	bsc -u -elab -verilog -vdir Core_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D SYNTHESIS $(BSC_PATH)  $(CORE_TOP_FILE)
 	rm Core_RTL/mkDummy_Mem_Server.v Core_RTL/mkShifter_Box.v
-	for f in FIFO2.v FIFO20.v FIFO10.v FIFO1.v SizedFIFO.v BRAM2.v BRAM2BE.v RegFile.v MakeResetA.v SyncResetA.v; do cp src_bsc_lib_rtl/$$f Core_RTL/; done
-	mv Core_RTL MCU.$(MEMSIZE).AHBL.DM/
+	for f in FIFO2.v FIFO20.v FIFO10.v FIFO1.v SizedFIFO.v BRAM2.v BRAM2BE.v RegFile.v MakeResetA.v SyncResetA.v; do cp $(SRC_BSC_LIB_DIR)/$$f Core_RTL/; done
+	mv Core_RTL $(CFG_DIR_NAME)/
 	date +"(%F %T) Generated RTL into Core_RTL"
 	@echo '-------------------------'
 
 .PHONY: compile_dm
-compile_dm:  build_dir  DM_RTL
+compile_dm: build_dir  DM_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating RISC-V Debug Module (mkBSDebug) RTL ..."
-	bsc -u -elab -verilog -vdir DM_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) $(BSC_PATH)  $(DM_TOP_FILE)
+	bsc -u -elab -verilog -vdir DM_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) $(BSC_PATH) $(DM_TOP_FILE)
 	rm DM_RTL/mkSoC_Map.v DM_RTL/mkJtag.v
-	for f in FIFO2.v FIFO20.v FIFO1.v SyncFIFOLevel.v ASSIGN1.v ResetInverter.v SyncHandshake.v SyncWire.v SyncResetA.v MakeResetA.v; do cp src_bsc_lib_rtl/$$f DM_RTL/; done
+	for f in FIFO2.v FIFO20.v FIFO1.v SyncFIFOLevel.v ASSIGN1.v ResetInverter.v SyncHandshake.v SyncWire.v SyncResetA.v MakeResetA.v; do cp $(SRC_BSC_LIB_DIR)/$$f DM_RTL/; done
 	date +"(%F %T) Generated RTL into DM_RTL"
 	@echo '-------------------------'
 
 .PHONY: compile_clint
-compile_clint:  build_dir  CLINT_RTL
+compile_clint: build_dir CLINT_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating CLINT RTL ..."
-	bsc -u -elab -verilog -vdir CLINT_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) $(BSC_PATH)  $(CLINT_TOP_FILE)
-	for f in FIFO2.v; do cp src_bsc_lib_rtl/$$f CLINT_RTL/; done
+	bsc -u -elab -verilog -vdir CLINT_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) $(BSC_PATH) $(CLINT_TOP_FILE)
+	for f in FIFO2.v; do cp $(SRC_BSC_LIB_DIR)/$$f CLINT_RTL/; done
 	date +"(%F %T) Generated RTL into CLINT_RTL"
 	@echo '-------------------------'
 
 .PHONY: compile_plic
-compile_plic:  build_dir  PLIC_RTL
+compile_plic: build_dir PLIC_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating PLIC RTL ..."
-	bsc -u -elab -verilog -vdir PLIC_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) $(BSC_PATH)  $(PLIC_TOP_FILE)
+	bsc -u -elab -verilog -vdir PLIC_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) $(BSC_PATH) $(PLIC_TOP_FILE)
 	date +"(%F %T) Generated RTL into PLIC_RTL"
 	@echo '-------------------------'
 
 .PHONY: compile_sim_clint
-compile_sim_clint:   build_dir CFG_DIR Sim_CLINT_RTL
+compile_sim_clint: build_dir CFG_DIR Sim_CLINT_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating Sim RTL to test with CLINT ..."
-	bsc -u -elab -verilog -vdir Sim_CLINT_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS)  -D WATCH_TOHOST  -D TEST_CLINT $(BSC_PATH)  $(SIM_TOP_FILE)
+	bsc -u -elab -verilog -vdir Sim_CLINT_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D WATCH_TOHOST -D TEST_CLINT $(BSC_PATH) $(SIM_TOP_FILE)
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_CLINT_RTL/
-	mv Sim_CLINT_RTL MCU.$(MEMSIZE).AHBL.DM/
+	mv Sim_CLINT_RTL $(CFG_DIR_NAME)/
 	date +"(%F %T) Generated RTL into Sim_CLINT_RTL"
 	@echo '-------------------------'
 
 .PHONY: compile_sim_plic
-compile_sim_plic:  build_dir CFG_DIR Sim_PLIC_RTL
+compile_sim_plic: build_dir CFG_DIR Sim_PLIC_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating Sim RTL to test with PLIC ..."
-	bsc -u -elab -verilog -vdir Sim_PLIC_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS)  -D WATCH_TOHOST  -D TEST_PLIC $(BSC_PATH)  $(SIM_TOP_FILE)
+	bsc -u -elab -verilog -vdir Sim_PLIC_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D WATCH_TOHOST -D TEST_PLIC $(BSC_PATH) $(SIM_TOP_FILE)
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_PLIC_RTL/
-	mv Sim_PLIC_RTL MCU.$(MEMSIZE).AHBL.DM/
+	mv Sim_PLIC_RTL $(CFG_DIR_NAME)/
 	date +"(%F %T) Generated RTL into Sim_PLIC_RTL"
 	@echo '-------------------------'
 
 .PHONY: compile_sim
-compile_sim:  build_dir CFG_DIR Sim_RTL
+compile_sim: build_dir CFG_DIR Sim_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating Sim RTL to test basic functionalty ..."
-	bsc -u -elab -verilog -vdir Sim_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS -D WATCH_TOHOST -D TEST_GPIO $(BSC_PATH) $(SIM_TOP_FILE)
+	bsc -u -elab -verilog -vdir Sim_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D WATCH_TOHOST -D TEST_GPIO $(BSC_PATH) $(SIM_TOP_FILE)
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_RTL/
-	mv Sim_RTL MCU.$(MEMSIZE).AHBL.DM/
+	mv Sim_RTL $(CFG_DIR_NAME)/
 	date +"(%F %T) Generated RTL into Sim_RTL"
 	@echo '-------------------------'
 
-.PHONY: compile_sim_loader
-compile_sim_loader:  build_dir CFG_DIR Sim_LDR_RTL
-	@echo '-------------------------'
-	date +"(%F %T) Generating Sim RTL to test basic functionalty (with loader) ..."
-	bsc -u -elab -verilog -vdir Sim_LDR_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) -D MICROSEMI -D TCM_LOADER -D WATCH_TOHOST -D TEST_GPIO $(BSC_PATH)  $(SIM_TOP_FILE)
-	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_LDR_RTL/
-	mv Sim_LDR_RTL MCU.$(MEMSIZE).AHBL.DM/
-	date +"(%F %T) Generated RTL into Sim_LDR_RTL"
-	@echo '-------------------------'
-
 .PHONY: compile_sim_rtos
-compile_sim_rtos:  build_dir CFG_DIR Sim_RTOS_RTL
+compile_sim_rtos: build_dir CFG_DIR Sim_RTOS_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating Sim RTL that runs FreeRTOS (SoC must be rtos-soc)"
-	bsc -u -elab -verilog -vdir Sim_RTOS_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) -D WATCH_TOHOST -D TEST_UART $(BSC_PATH) $(SIM_TOP_FILE)
+	bsc -u -elab -verilog -vdir Sim_RTOS_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D WATCH_TOHOST -D TEST_UART $(BSC_PATH) $(SIM_TOP_FILE)
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_RTOS_RTL/
-	mv Sim_RTOS_RTL MCU.$(MEMSIZE).AHBL.DM/
+	mv Sim_RTOS_RTL $(CFG_DIR_NAME)/
 	date +"(%F %T) Generated RTL into Sim_RTOS_RTL"
 	@echo '-------------------------'
 
 .PHONY: compile_soc
-compile_soc:   build_dir CFG_DIR SoC_RTL
+compile_soc: build_dir CFG_DIR SoC_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating SoC RTL with GPIO to emulate basic functionality ..."
-	bsc -u -elab -verilog -vdir SoC_RTL $(RTL_BDIRS)  $(BSC_COMPILATION_FLAGS) -D TEST_GPIO -D SYNTHESIS -D MICROSEMI -D TCM_LOADER $(BSC_PATH) $(SoC_TOP_FILE)
-	for f in FIFO2.v FIFO20.v FIFO10.v FIFO1.v SizedFIFO.v BRAM2.v BRAM2BE.v RegFile.v MakeResetA.v SyncResetA.v; do cp src_bsc_lib_rtl/$$f SoC_RTL/; done
-	for f in SyncFIFOLevel.v ASSIGN1.v ResetInverter.v SyncHandshake.v SyncWire.v; do cp src_bsc_lib_rtl/$$f SoC_RTL/; done
-	mv SoC_RTL MCU.$(MEMSIZE).AHBL.DM/
+	bsc -u -elab -verilog -vdir SoC_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D TEST_GPIO -D SYNTHESIS $(BSC_PATH) $(SoC_TOP_FILE)
+	for f in FIFO2.v FIFO20.v FIFO10.v FIFO1.v SizedFIFO.v BRAM2.v BRAM2BE.v RegFile.v MakeResetA.v SyncResetA.v; do cp $(SRC_BSC_LIB_DIR)/$$f SoC_RTL/; done
+	for f in SyncFIFOLevel.v ASSIGN1.v ResetInverter.v SyncHandshake.v SyncWire.v; do cp $(SRC_BSC_LIB_DIR)/$$f SoC_RTL/; done
+	mv SoC_RTL $(CFG_DIR_NAME)/
 	date +"(%F %T) Generated RTL into SoC_RTL"
 	@echo '-------------------------'
 
@@ -251,10 +241,10 @@ compile_soc:   build_dir CFG_DIR SoC_RTL
 
 .PHONY: clean
 clean:
-	rm -r -f  *~  Makefile_*  build_dir
+	rm -r -f *~ build_dir
 
 .PHONY: full_clean
 full_clean: clean
-	rm -r -f  *.log CLINT_RTL PLIC_RTL DM_RTL MCU.$(MEMSIZE).AHBL.DM
+	rm -r -f *.log CLINT_RTL PLIC_RTL DM_RTL $(CFG_DIR_NAME)
 
 # ================================================================
