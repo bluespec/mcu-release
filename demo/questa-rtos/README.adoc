@@ -18,6 +18,7 @@ This demo contains files and scripts for:
 image::../../docs/rtos-sys.png[]
 
 === mkSoC_Top
+
 Connects the MCU processor (`mkMCUTop`) to PLIC,
 CLINT and UART devices via an AHBL-to-AXI4 bridge and an 1x3 AXI4
 fabric. The AHB-L and AXI4 interconnects are 32-bit wide. 
@@ -84,6 +85,14 @@ export MTI_VCO_MODE=64
 
 === Steps
 
+All the steps to build the Questa exectuate and run the simulation
+must be done from the `build` directory. Create a `build` directory
+if it does not exist already.
+
+```
+$ mkdir -p build                 # from questa-rtos
+```
+
 ```
 $ cd build                       # from questa-rtos
 $ ../bin/MCU_compile_Questa.sh   # build the Questa executable
@@ -106,4 +115,6 @@ printing lines of the form:
 # Blink !!!
 ```
 
-
+NOTE: The memory images that are loaded into the ITCM and DTCM are
+created in `/tmp/itcm.mem` and `/tmp/dtcm.mem`. Please ensure that
+these locations are writable.
