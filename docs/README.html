@@ -550,99 +550,77 @@ If you need to install Verilator, please see: <a href="https://verilator.org/gui
 <h2 id="_step_4_building_the_mcu_from_source">Step 4: Building the MCU from source</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This repository can be used to generate several different configurations of the MCU CPU.
-The <code>build/Makefile.rv32imc.DM</code> makefile is configured to generate MCUs that:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>implement the RV32IMC architecture</p>
-</li>
-<li>
-<p>implement a serial multiplier and a logarithmic shifter</p>
-</li>
-<li>
-<p>implement a minimal set of CSRs for exception handling</p>
-</li>
-<li>
-<p>use the AHB-L protocol to access memory-mapped IO</p>
-</li>
-<li>
-<p>support different TCM sizes ranging from 8 KB to 128 KB</p>
-</li>
-<li>
-<p>support back-door loading of the TCMs via a loader interface</p>
-</li>
-<li>
-<p>support integration with a RISC-V Debug Module (also included in this repository)</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>The makefile implements the following targets:</p>
+<p>This repository can be used to generate several different
+configurations of the MCU CPU. Four makefiles are included in the
+build directory:</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 15%;">
-<col>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
 </colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Makefile</th>
+<th class="tableblock halign-left valign-top">TCM Loader</th>
+<th class="tableblock halign-left valign-top">Debug Module</th>
+</tr>
+</thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Target</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Description</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Makefile.rv32imc.ldr.dm</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>compile_core</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Compiles the MCU CPU and generates the <code>mkBSCore</code>. RTL created in <code>MCU.&lt;M&gt;K.AHBL.DM/Core_RTL</code>. The make variable <code>MEMSIZE</code> can be used to change the TCM size. The default value is 16KB.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Makefile.rv32imc.ldr.DM</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>compile_dm</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Compiles the RISC-V Debug Module and generates the <code>mkBSDebug</code>. RTL created in <code>DM_RTL</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Makefile.rv32imc.LDR.dm</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">No</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>compile_plic</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Compiles the RISC-V PLIC and generates the <code>mkPLIC_16_1_7</code>. RTL created in <code>PLIC_RTL</code>. The PLIC is configured to have 16 source interrupts, 1 target interrupt and 7 priority levels.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>compile_clint</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Compiles the RISC-V CLINT and generates the <code>mkCLINT_AHBL</code>. RTL created in <code>CLINT_RTL</code>.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>compile_soc</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Compiles a test SoC that integrates <code>mkBSCore</code>, <code>mkBSDebug</code>, a loader device and a GPIO device. This SoC is also used as the demo SoC on the Arty board. RTL created in <code>MCU.&lt;M&gt;K.AHBL.DM/SoC_RTL</code>.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>compile_sim</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Compiles a simulation version of the test SoC that can run on Verilator. RTL created in <code>MCU.&lt;M&gt;K.AHBL.DM/Sim_RTL</code>.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>compile_sim_clint</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Compiles a simulation version of the test SoC that also integrates the CLINT. RTL created in <code>MCU.&lt;M&gt;K.AHBL.DM/Sim_CLINT_RTL</code>.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>compile_sim_plic</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Compiles a simulation version of the test SoC that also integrates the PLIC. RTL created in <code>MCU.&lt;M&gt;K.AHBL.DM/Sim_PLIC_RTL</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Makefile.rv32imc.LDR.DM</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Yes</p></td>
 </tr>
 </tbody>
 </table>
 <div class="paragraph">
-<p>The <code>make</code> commands must be executed from the <code>build</code> directory only.
-The <code>compile_core</code>, <code>compile_soc</code> and <code>compile_sim*</code> targets accept the <code>MEMSIZE</code> argument that determines the TCM size in KBs.
-The <code>compile_dm</code>, <code>compile_plic</code> and <code>compile_clint</code> targets do not take any arguments.</p>
+<p>The features supported in the build configurations are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>RV32IMC architecture</p>
+</li>
+<li>
+<p>serial multiplier and a logarithmic shifter</p>
+</li>
+<li>
+<p>a minimal set of CSRs for exception handling</p>
+</li>
+<li>
+<p>the AHB-L protocol to access memory-mapped IO</p>
+</li>
+<li>
+<p>different TCM sizes ranging from 8 KB to 128 KB</p>
+</li>
+<li>
+<p>back-door loading of the TCMs via a loader interface</p>
+</li>
+<li>
+<p>integration with a RISC-V Debug Module (also included in this repository)</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
-<p>For instance, to compile the MCU with 32KB ITCM and DTCM:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>$ cd $MCU_REPO/build
-
-# RTL will be placed in MCU.32K.AHBL.DM/Core_RTL
-$ make -f Makefile.rv32imc.DM MEMSIZE=32K compile_core
-
-# To compile the debug module - RTL will be placed in DM_RTL
-$ make -f Makefile.rv32imc.DM compile_dm</code></pre>
-</div>
+<p>Running <code>make -f &lt;Makefile&gt; help</code> on any of the makefiles will
+print a detailed description of the supported targets.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -651,10 +629,43 @@ $ make -f Makefile.rv32imc.DM compile_dm</code></pre>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Please run <code>make clean</code> between compile commands to clean up intermediate files that may corrupt subsequent builds.
+<div class="paragraph">
+<p>The <code>make</code> commands require that <code>$MCU_REPO</code> is set and points to
+the base directory of the release repository.</p>
+</div>
+<div class="paragraph">
+<p>The <code>compile_core</code>, <code>compile_soc</code> and <code>compile_sim*</code> targets accept
+the <code>MEMSIZE</code> argument that determines the TCM size in KBs.</p>
+</div>
+<div class="paragraph">
+<p>The <code>compile_dm</code>, <code>compile_plic</code> and <code>compile_clint</code> targets do not
+take any arguments.</p>
+</div>
+<div class="paragraph">
+<p>The <code>compile_sim_rtos</code> requires the SoC argument and expects
+<code>SoC=rtos-soc</code>. The <code>rtos-soc</code> does not include a loader device and
+can therefore only be compiled with makefiles that do not include
+the TCM loader.</p>
+</div>
+<div class="paragraph">
+<p>Please run <code>make clean</code> between compile commands to clean up
+intermediate files that may corrupt subsequent builds.</p>
+</div>
 </td>
 </tr>
 </table>
+</div>
+<div class="paragraph">
+<p>For instance, to compile the MCU with 32KB ITCM and DTCM:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code># RTL will be placed in MCU.32K.AHBL.DM/Core_RTL
+$ make -f $MCU_REPO/build/Makefile.rv32imc.LDR.DM MEMSIZE=32K compile_core
+
+# To compile the debug module - RTL will be placed in DM_RTL
+$ make -f $MCU_REPO/build/Makefile.rv32imc.ldr.DM compile_dm</code></pre>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_step_5_pre_built_configurations">Step 5: Pre-built configurations</h3>
@@ -675,6 +686,25 @@ Please run <code>make clean</code> between compile commands to clean up intermed
 </div>
 <div class="paragraph">
 <p>Please refer to $MCU_DEMO/README.html for further details about the demo and its features.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_6_freertos_demonstration">Step 6: FreeRTOS Demonstration</h3>
+<div class="paragraph">
+<p>The <code>$MCU_REPO/demo/questa-rtos</code> folder demonstrates a MCU based system
+running FreeRTOS using the Questa simulator. The TCM memory size is
+fixed to 1024KB to fit the FreeRTOS binary and has been generated
+using the following build command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>$ cd $MCU_REPO/build
+$ make -f Makefile.rv32imc.dm compile_sim_rtos MEMSIZE=1024K SoC=rtos-soc</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To run the demo please follow the steps in
+<code>$MCU_REPO/demo/questa-rtos/README.adoc</code></p>
 </div>
 </div>
 <div class="sect2">
@@ -707,7 +737,7 @@ Please run <code>make clean</code> between compile commands to clean up intermed
 |
  `--- demo           # System demos
 |
- `--- build          # Compile BSV and genererate RTL
+ `--- build          # Makefiles to compile BSV and generate RTL
 |
  `--- docs           # Documentation</code></pre>
 </div>
@@ -724,7 +754,7 @@ Please run <code>make clean</code> between compile commands to clean up intermed
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-05-11 07:48:35 +0530
+Last updated 2022-06-01 13:24:38 +0530
 </div>
 </div>
 </body>
