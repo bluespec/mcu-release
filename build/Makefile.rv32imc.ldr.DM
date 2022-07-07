@@ -14,6 +14,7 @@ help:
 	@echo '    make  compile_dm   		Generate BSDebug RTL'
 	@echo '    make  compile_clint		Generate CLINT RTL'
 	@echo '    make  compile_plic 		Generate PLIC RTL'
+	@echo '    make  compile_all_ip		Generate BSCore, BSDebug, CLINT, PLIC RTL'
 	@echo '    make  compile_soc  		Generate SoC to test basic function'
 	@echo ''
 	@echo 'Simulation Targets'
@@ -185,6 +186,9 @@ compile_plic: build_dir PLIC_RTL
 	bsc -u -elab -verilog -vdir PLIC_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) $(BSC_PATH) $(PLIC_TOP_FILE)
 	date +"(%F %T) Generated RTL into PLIC_RTL"
 	@echo '-------------------------'
+
+.PHONY: compile_all_ip
+compile_all_ip: compile_core compile_dm compile_clint compile_plic
 
 .PHONY: compile_sim_clint
 compile_sim_clint: build_dir CFG_DIR Sim_CLINT_RTL
