@@ -103,13 +103,13 @@ CLINT_RTL:
 Core_RTL:
 	mkdir -p $@
 
+Sim_RTOS_RTL:
+	mkdir -p $@
+
 Sim_CLINT_RTL:
 	mkdir -p $@
 
 Sim_PLIC_RTL:
-	mkdir -p $@
-
-Sim_RTOS_RTL:
 	mkdir -p $@
 
 Sim_RTL:
@@ -118,13 +118,13 @@ Sim_RTL:
 SoC_RTL:
 	mkdir -p $@
 
-.SILENT:
+#.SILENT:
 .PHONY: compile_core
 compile_core: build_dir CFG_DIR Core_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating MCU Core (mkMCUTop) RTL ..."
 	bsc -u -elab -verilog -vdir Core_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D SYNTHESIS $(BSC_PATH)  $(SYS_TOP_FILE)
-	rm Core_RTL/mkDummy_Mem_Server.v Core_RTL/mkShifter_Box.v
+	rm Core_RTL/mkDummy_Mem_Server.v Core_RTL/mkShifter_Box.v Core_RTL/mkXCore.v
 	for f in FIFO2.v FIFO20.v FIFO10.v FIFO1.v SizedFIFO.v BRAM2.v BRAM2BE.v RegFile.v MakeResetA.v SyncResetA.v; do cp $(SRC_BSC_LIB_DIR)/$$f Core_RTL/; done
 	mv Core_RTL $(CFG_DIR_NAME)/
 	date +"(%F %T) Generated RTL into Core_RTL"
