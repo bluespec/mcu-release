@@ -35,21 +35,22 @@ TOPMODULE = mkTop_HW_Side
 
 # ================================================================
 # Runs simulation executable on ELF specified by the variable TEST
-
+# Change verbosity to v1 for instruction trace
+VERBOSITY ?= v0
 
 .PHONY: run_test
 run_test:
 	$(SCRIPTS_DIR)/Elf_to_Hex/elfhex.sh -e $(TEST) -m $(MEMSIZE) -i $(IBASE_ADDR) -d $(DBASE_ADDR) -w 32
 	rm .*.hex32
 	rm *.hex32
-	./exe_HW_sim  +exit +tohost
+	./exe_HW_sim  +exit +tohost +$(VERBOSITY)
 
 .PHONY: run_test_waves
 run_test_waves:
 	$(SCRIPTS_DIR)/Elf_to_Hex/elfhex.sh -e $(TEST) -m $(MEMSIZE) -i $(IBASE_ADDR) -d $(DBASE_ADDR) -w 32
 	rm .*.hex32
 	rm *.hex32
-	./exe_HW_sim  +exit +trace +tohost
+	./exe_HW_sim  +exit +trace +tohost +$(VERBOSITY)
 
 # ================================================================
 
