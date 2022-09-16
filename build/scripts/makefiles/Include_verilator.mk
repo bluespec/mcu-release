@@ -38,6 +38,7 @@ simulator:
                 -Wno-CASEINCOMPLETE -Wno-LITENDIAN -Wno-UNOPT \
                 -Wno-UNOPTFLAT -Wno-WIDTH -Wno-fatal -Wno-BLKANDNBLK \
 		-I$(SIM_RTL) \
+		-I$(USER_RTL_DIR) \
 		$(VERILATOR_FLAGS) \
 		--cc  $(TOPMODULE)_edited.v \
 		--exe  sim_main.cpp \
