@@ -89,6 +89,8 @@ module mkTop_HW_Side (Empty) ;
       Bit #(2)  verbosity = (v3 ? 3 : ((v2 ? 2 : (v1 ? 1 : 0))));
       soc_top.set_verbosity  (verbosity);
 
+      $display ("Setting debug verbosity to %0d", verbosity);
+
 `ifdef WATCH_TOHOST
       // ----------------
       // Load tohost addr from symbol-table file

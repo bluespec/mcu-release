@@ -2,7 +2,9 @@
 
 #================================================================
 
-ARCH = RV32IMC
+ARCH = RV32IM
+
+REPO ?= ${CATALYST_INSTALL}
 
 # What is the size of the TCM in KB? Changing this would require
 # recompilation of the SW application and using the appropriate RTL.
@@ -16,8 +18,11 @@ DBASE_ADDR ?= 0xc8000000
 # Pointer to simulation sources
 SIM_RTL ?= Sim_RTL
 
+# Pointer to user RTL
+USER_RTL_DIR ?= .
+
 # Directories relative to CATALYST_INSTALL
-SCRIPTS_DIR = ${CATALYST_INSTALL}/build/scripts
+SCRIPTS_DIR = $(REPO)/build/scripts
 
 #================================================================
 # Common boilerplate rules
