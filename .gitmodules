@@ -13,6 +13,3 @@
 [submodule "mcu-core"]
 	path = MCU_Core
 	url = https://github.com/bluespec/mcu-core.git
-[submodule "Catalyst"]
-	path = Catalyst
-	url = https://github.com/bluespec/X-Accelerator
