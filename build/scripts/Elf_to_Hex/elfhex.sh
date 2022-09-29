@@ -40,7 +40,7 @@ while [ "$1" != "" ]; do
     shift
 done
 
-TOOLS_DIR=$CATALYST_INSTALL/build/scripts
+TOOLS_DIR=$CATALYST_INSTALL/cores/MCU/build/scripts
 
 # Step 1. Split elf into section wise hex files (32-bit hex)
 ${TOOLS_DIR}/Elf_to_Hex/Elf_to_Hex32.exe ${elf_input}

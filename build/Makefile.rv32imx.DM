@@ -2,14 +2,14 @@
 
 
 # ================================================================
-# User-variables
-REPO ?= ${CATALYST_INSTALL}
+# User-variables - set REPO correctly (depends on value of args.core)
+REPO ?= ..
 DEBUG_REPO = $(REPO)/Debug_Module
 CLINT_REPO = $(REPO)/CLINT
 PLIC_REPO = $(REPO)/PLIC
 CORE_REPO = $(REPO)/MCU_Core
 NMT_REPO = $(REPO)/Tiny_TCM
-CATALYST_REPO = $(REPO)/Catalyst
+CATALYST_REPO = ${CATALYST_INSTALL}
 FABRIC_REPO = $(NMT_REPO)/fabrics/$(FABRIC)
 SoC ?= benchmark-soc
 ARCH ?= RV32IM
@@ -38,6 +38,9 @@ BSC_COMPILATION_FLAGS += \
 	-D JTAG_TAP \
 	-D XILINX_BSCAN \
 	-D XILINX_XC7K325T \
+
+# ================================================================
+include ${CATALYST_WORK}/Include_CAT.mk
 
 # ================================================================
 include $(REPO)/build/Include_Common_DM.mk
