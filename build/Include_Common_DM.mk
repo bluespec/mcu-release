@@ -31,7 +31,7 @@ CORE_DIRS = $(CORE_REPO)/Sys:$(CORE_REPO)/CPU:$(CORE_REPO)/ISA:$(CORE_REPO)/RegF
 
 IP_DIRS = $(CLINT_REPO)/src:$(PLIC_REPO)/src:$(DEBUG_REPO)/src
 
-CATALYST_DIRS = ${CATALYST_WORK}/src/bsv
+CATALYST_DIRS = $(CATALYST_RUNDIR)/src/bsv
 
 FABRIC_DIRS = $(REPO)/src_Testbench/Fabrics/AXI4:$(REPO)/src_Testbench/Fabrics/AXI4_Lite
 
@@ -51,9 +51,11 @@ SoC_TOP_MODULE = mkSoC_Top
 
 SIM_TOP_FILE   = $(REPO)/src_Testbench/common/Top_HW_Side.bsv
 SIM_TOP_MODULE = mkTop_HW_Side
-
-CFG_DIR_NAME = CATALYST.MCU.$(MEMSIZE).$(FABRIC).DM
 SRC_BSC_LIB_DIR = $(REPO)/build/src_bsc_lib_rtl
+
+# Unused
+CFG_DIR_NAME = CATALYST.MCU.$(MEMSIZE).$(FABRIC).DM
+# Unused
 
 # ================================================================
 # bsc compilation flags
@@ -83,37 +85,34 @@ Sim_RTL:
 SoC_RTL:
 	mkdir -p $@
 
-#.SILENT:
+.SILENT:
 .PHONY: compile_core
-compile_core: build_dir CFG_DIR Core_RTL
+compile_core: build_dir Core_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating MCU Core (mkMCUTop) RTL ..."
 	bsc -u -elab -verilog -vdir Core_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D SYNTHESIS $(BSC_PATH)  $(SYS_TOP_FILE)
 	rm Core_RTL/mkDummy_Mem_Server.v Core_RTL/mkShifter_Box.v
 	for f in FIFO2.v FIFO20.v FIFO10.v FIFO1.v SizedFIFO.v BRAM2.v BRAM2BE.v RegFile.v MakeResetA.v SyncResetA.v; do cp $(SRC_BSC_LIB_DIR)/$$f Core_RTL/; done
-	mv Core_RTL $(CFG_DIR_NAME)/
 	date +"(%F %T) Generated RTL into Core_RTL"
 	@echo '-------------------------'
 
 .PHONY: compile_sim
-compile_sim: build_dir CFG_DIR Sim_RTL
+compile_sim: build_dir Sim_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating Sim RTL to test basic functionalty ..."
 	bsc -u -elab -verilog -vdir Sim_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D WATCH_TOHOST -D TEST_GPIO -D TEST_UART $(BSC_PATH) $(SIM_TOP_FILE)
 	rm Sim_RTL/mkDummy_Mem_Server.v Sim_RTL/mkShifter_Box.v
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_RTL/
-	mv Sim_RTL $(CFG_DIR_NAME)/
 	date +"(%F %T) Generated RTL into Sim_RTL"
 	@echo '-------------------------'
 
 .PHONY: compile_soc
-compile_soc: build_dir CFG_DIR SoC_RTL
+compile_soc: build_dir SoC_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating SoC RTL with GPIO to emulate basic functionality ..."
 	bsc -u -elab -verilog -vdir SoC_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D TEST_GPIO -D SYNTHESIS $(BSC_PATH) $(SoC_TOP_FILE)
 	for f in FIFO2.v FIFO20.v FIFO10.v FIFO1.v SizedFIFO.v BRAM2.v BRAM2BE.v RegFile.v MakeResetA.v SyncResetA.v; do cp $(SRC_BSC_LIB_DIR)/$$f SoC_RTL/; done
 	for f in SyncFIFOLevel.v ASSIGN1.v ResetInverter.v SyncHandshake.v SyncWire.v; do cp $(SRC_BSC_LIB_DIR)/$$f SoC_RTL/; done
-	mv SoC_RTL $(CFG_DIR_NAME)/
 	date +"(%F %T) Generated RTL into SoC_RTL"
 	@echo '-------------------------'
 

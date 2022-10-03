@@ -3,7 +3,14 @@
 
 # ================================================================
 # User-variables - set REPO correctly (depends on value of args.core)
+# Set CATALYST_RUNDIR to appropriate value depending on run-time dir
 REPO ?= ..
+CATALYST_RUNDIR ?= ${CATALYST_WORK}
+SoC ?= benchmark-soc
+ARCH ?= RV32IM
+MEMSIZE ?= 1024K
+FABRIC ?= AXI4
+
 DEBUG_REPO = $(REPO)/Debug_Module
 CLINT_REPO = $(REPO)/CLINT
 PLIC_REPO = $(REPO)/PLIC
@@ -11,10 +18,6 @@ CORE_REPO = $(REPO)/MCU_Core
 NMT_REPO = $(REPO)/Tiny_TCM
 CATALYST_REPO = ${CATALYST_INSTALL}
 FABRIC_REPO = $(NMT_REPO)/fabrics/$(FABRIC)
-SoC ?= benchmark-soc
-ARCH ?= RV32IM
-MEMSIZE ?= 1024K
-FABRIC ?= AXI4
 
 # ================================================================
 # RISC-V config macros passed into Bluespec 'bsc' compiler
