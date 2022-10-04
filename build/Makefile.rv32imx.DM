@@ -43,7 +43,7 @@ BSC_COMPILATION_FLAGS += \
 	-D XILINX_XC7K325T \
 
 # ================================================================
-include ${CATALYST_WORK}/Include_CAT.mk
+include $(CATALYST_RUNDIR)/Include_CAT.mk
 
 # ================================================================
 include $(REPO)/build/Include_Common_DM.mk
