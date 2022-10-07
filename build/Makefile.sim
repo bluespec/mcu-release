@@ -6,6 +6,8 @@ ARCH = RV32IM
 
 REPO ?= ${CATALYST_INSTALL}
 
+SIMULATOR ?= VERILATOR
+
 # What is the size of the TCM in KB? Changing this would require
 # recompilation of the SW application and using the appropriate RTL.
 MEMSIZE ?= 1024
@@ -32,4 +34,9 @@ include $(SCRIPTS_DIR)/makefiles/Include_Common.mk
 #================================================================
 # Makefile rules for building for specific simulator: verilator
 
-include $(SCRIPTS_DIR)/makefiles/Include_verilator.mk
+
+ifeq ($(SIMULATOR),QUESTASIM)  
+	include $(SCRIPTS_DIR)/makefiles/Include_questasim.mk
+else
+	include $(SCRIPTS_DIR)/makefiles/Include_verilator.mk
+endif
