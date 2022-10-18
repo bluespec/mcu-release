@@ -4,6 +4,7 @@
 # ================================================================
 # User-variables - set REPO correctly (depends on value of args.core)
 # Set CATALYST_RUNDIR to appropriate value depending on run-time dir
+BSC ?= bsc
 REPO ?= ..
 CATALYST_RUNDIR ?= ${CATALYST_WORK}
 SoC ?= benchmark-soc
