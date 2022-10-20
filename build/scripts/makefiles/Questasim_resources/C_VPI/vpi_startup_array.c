@@ -14,6 +14,8 @@
 #include "vpi_wrapper_sim_socket_accept.h"
 #include "vpi_wrapper_sim_socket_putchar.h"
 #include "vpi_wrapper_sim_socket_getchar.h"
+#include "vpi_wrapper_vpidmi_request.h"
+#include "vpi_wrapper_vpidmi_response.h"
 
 /* Convenience function to register all imported functions */
 void vpi_register_all()

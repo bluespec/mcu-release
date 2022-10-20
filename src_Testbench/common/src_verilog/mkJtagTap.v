@@ -4,8 +4,10 @@
 // (which is compiled from BSV).  This version ignores the jtag ports, and
 // provides DMI ports using a vpi connection through imported C functions.
 
+`ifndef SIM_WITH_VPI
 `include "sim_socket.vh"
 `include "sim_dmi.vh"
+`endif
 
 `define DEFAULT_DEBUG_PORT_VPI 5555
 
@@ -58,7 +60,11 @@ module mkJtagTap(
       if (RST_N) begin
 	 if (inited == 0) begin
 	    $display("using  the debug port (vpi) :%d", port);
+`ifdef SIM_WITH_VPI
+            sock = $socket_open(port);
+`else
 	    sock = socket_open(port);
+`endif
 	    if (sock < 0) begin
 	       $display("ERROR: socket_open(%d) returned %d", port, sock);
 	       $finish;
@@ -77,7 +83,11 @@ module mkJtagTap(
 	       int response;
 	       data = dmi_rsp_data;
 	       response = {30'd0, dmi_rsp_response};
+`ifdef SIM_WITH_VPI
+               err = $vpidmi_response(fd, data, response);
+`else
 	       err = vpidmi_response(fd, data, response);
+`endif   
 	       if (err < 0) begin
 		  $display("ERROR: vpidmi_response() returned %d", err);
 		  $finish;
@@ -88,7 +98,11 @@ module mkJtagTap(
 	       int addr;
 	       int data;
 	       int op;
+`ifdef SIM_WITH_VPI
+               err = $vpidmi_request(fd,addr, data, op);
+`else
 	       err = vpidmi_request(fd, addr, data, op);
+`endif
 	       if (err < 0) begin
 		  $display("ERROR: vpidmi_req_uest() returned %d", err);
 		  $finish;
@@ -105,7 +119,11 @@ module mkJtagTap(
 	 end
 	 else begin
 	    //$display("socket_accept: sock %d", sock);
+`ifdef SIM_WITH_VPI
+            sock = $socket_accept(port);
+`else
 	    fd = socket_accept(sock);
+`endif
 	    //$display("socket_accept: fd %d", fd);
 	 end
       end

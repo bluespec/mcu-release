@@ -30,11 +30,10 @@ simulator:
 	cc -O3  -Wall -Wno-unused -D_FILE_OFFSET_BITS=64 -I"$(QUESTA_RESOURCES)/lib"/VPI -fpermissive -fPIC -c -o "$(QUESTA_RESOURCES)/C_VPI/vpi_startup_array.o"            "$(QUESTA_RESOURCES)/C_VPI/vpi_startup_array.c"
 
 #compile Questa simulation
-	sed -i 's/CFG_VAL/$(MEMSIZE)/g' $(CATALYST_WORK)/CATALYST.MCU.1024K.AXI4.DM/Sim_RTL/mkSoC_Top.v
 	$(SCRIPTS_DIR)/makefiles/bsc_build_vsim_modelsim link $(SIM_EXE_FILE) mkTop_HW_Side \
 	-verbose \
-	-y $(CATALYST_WORK)/CATALYST.MCU.1024K.AXI4.DM/Sim_RTL \
 	-y $(USER_RTL_DIR) \
+	-y $(SIM_RTL) \
 	-y $(QUESTA_RESOURCES)/lib/Verilog \	$(QUESTA_RESOURCES)/lib/Verilog/main.v \
 	$(QUESTA_RESOURCES)/lib/C/sim_socket.o \
 	$(QUESTA_RESOURCES)/lib/C/C_Imported_Functions.o \

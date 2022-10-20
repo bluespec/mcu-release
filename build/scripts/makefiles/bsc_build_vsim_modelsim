@@ -168,7 +168,7 @@ if [ "$VERBOSE" = "yes" ]; then
 else
   VLOG_VERBOSE="-quiet"
 fi
-vlog $VLOG_VERBOSE -sv -work $work_dir +libext+.v $VSIM_PATH_FLAGS $BSC_VSIM_FLAGS +define+TOP=$BSC_TOPLEVEL_MODULE $BSC_VERILOG_DEFS $BSC_VERILOG_OPTS $BSC_VERILOG_FILES +define+QUESTASIM
+vlog $VLOG_VERBOSE -sv -work $work_dir +libext+.v $VSIM_PATH_FLAGS $BSC_VSIM_FLAGS +define+TOP=$BSC_TOPLEVEL_MODULE $BSC_VERILOG_DEFS $BSC_VERILOG_OPTS $BSC_VERILOG_FILES +define+SIM_WITH_VPI
 status=$?
 if [ "$status" != "0" ]; then
     echo "ERROR: cannot compile Verilog files" >&2
