@@ -71,4 +71,4 @@ simulator:
 	    $(SIM_RTL)/vpi_wrapper_sim_socket_putchar.o \
 	    $(SIM_RTL)/vpi_wrapper_vpidmi_request.o \
 	    $(SIM_RTL)/vpi_wrapper_vpidmi_response.o \
-	    $(SIM_RTL)/vpi_startup_array.o 
+	    $(SIM_RTL)/vpi_startup_array.o -lbdpi
