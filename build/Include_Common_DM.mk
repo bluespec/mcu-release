@@ -107,6 +107,16 @@ compile_sim: build_dir Sim_RTL
 	date +"(%F %T) Generated RTL into Sim_RTL"
 	@echo '-------------------------'
 
+.PHONY: compile_sim_mem_test
+compile_sim_mem_test: build_dir Sim_RTL
+	@echo '-------------------------'
+	date +"(%F %T) Generating Sim RTL to test basic functionalty ..."
+	$(BSC) -u -elab -verilog -vdir Sim_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D SIM_MEM_TEST -D WATCH_TOHOST -D TEST_GPIO -D TEST_UART $(BSC_PATH) $(SIM_TOP_FILE)
+	rm Sim_RTL/mkDummy_Mem_Server.v Sim_RTL/mkShifter_Box.v
+	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_RTL/
+	date +"(%F %T) Generated RTL into Sim_RTL"
+	@echo '-------------------------'
+
 .PHONY: compile_soc
 compile_soc: build_dir SoC_RTL
 	@echo '-------------------------'
