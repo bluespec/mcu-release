@@ -4,8 +4,17 @@
 
 ARCH = RV32IM
 
+# This REPO points to the part of the catalyst installation that
+# deals with building the RISC-V simulator
 REPO ?= ${CATALYST_INSTALL}
 
+# Scripts and utilities to build the simulator
+SCRIPTS_DIR = $(REPO)/build/scripts
+
+# What is the run-directory. Placeholder. Set from command line.
+CATALYST_RUNDIR ?= .
+
+# What is the simulator. Default. Set from command line.
 SIMULATOR ?= VERILATOR
 
 # What is the size of the TCM in KB? Changing this would require
@@ -22,9 +31,6 @@ SIM_RTL ?= Sim_RTL
 
 # Pointer to user RTL
 USER_RTL_DIR ?= .
-
-# Directories relative to CATALYST_INSTALL
-SCRIPTS_DIR = $(REPO)/build/scripts
 
 #================================================================
 # Common boilerplate rules

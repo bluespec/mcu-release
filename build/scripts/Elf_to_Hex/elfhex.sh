@@ -8,7 +8,7 @@
 
 usage()
 {
-    echo "usage: elfhex.sh [[-e elf_file ] [-m mem-size] [-b mem-base] [-w mem-width] | [-h]]"
+    echo "usage: elfhex.sh [[-e elf_file] [-o out_dir] [-m mem-size] [-b mem-base] [-w mem-width] | [-h]]"
     echo "Please ensure CATALYST_INSTALL points to your Catalyst installation folder" 
 }
 
@@ -18,6 +18,9 @@ while [ "$1" != "" ]; do
     case $1 in
         -e | --elf )       shift  # path to elf-file
 	                   elf_input=$1
+                           ;;
+        -o | --outdir )    shift  # path to hex output directory
+	                   outdir=$1
                            ;;
         -m | --mem-size )  shift  # memory size in KB
 	                   mem_size=$1
@@ -63,7 +66,7 @@ ${TOOLS_DIR}/Elf_to_Hex/Merge_Elfhex.py --source .rodata.hex32 \
 let memsz_bytes=${mem_size}*1024
 
 # Step 3a. Generate ITCM memory image from I.hex32
-${TOOLS_DIR}/Elf_to_Hex/Elfhex_to_Memhex.py /tmp/itcm.mem ${mem_width} ${imem_base} ${memsz_bytes} I.hex32
+${TOOLS_DIR}/Elf_to_Hex/Elfhex_to_Memhex.py ${outdir}/itcm.hex ${mem_width} ${imem_base} ${memsz_bytes} I.hex32
 
 # Step 3b. Generate ITCM memory image from D.hex32
-${TOOLS_DIR}/Elf_to_Hex/Elfhex_to_Memhex.py /tmp/dtcm.mem ${mem_width} ${dmem_base} ${memsz_bytes} D.hex32
+${TOOLS_DIR}/Elf_to_Hex/Elfhex_to_Memhex.py ${outdir}/dtcm.hex ${mem_width} ${dmem_base} ${memsz_bytes} D.hex32

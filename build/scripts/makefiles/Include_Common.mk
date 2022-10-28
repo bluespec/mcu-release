@@ -40,14 +40,14 @@ VERBOSITY ?= v0
 
 .PHONY: run_test
 run_test:
-	$(SCRIPTS_DIR)/Elf_to_Hex/elfhex.sh -e $(TEST) -m $(MEMSIZE) -i $(IBASE_ADDR) -d $(DBASE_ADDR) -w 32
+	$(SCRIPTS_DIR)/Elf_to_Hex/elfhex.sh -e $(TEST) -o $(CATALYST_RUNDIR) -m $(MEMSIZE) -i $(IBASE_ADDR) -d $(DBASE_ADDR) -w 32
 	rm .*.hex32
 	rm *.hex32
 	./exe_HW_sim  +exit +tohost +$(VERBOSITY)
 
 .PHONY: run_test_waves
 run_test_waves:
-	$(SCRIPTS_DIR)/Elf_to_Hex/elfhex.sh -e $(TEST) -m $(MEMSIZE) -i $(IBASE_ADDR) -d $(DBASE_ADDR) -w 32
+	$(SCRIPTS_DIR)/Elf_to_Hex/elfhex.sh -e $(TEST) -o $(CATALYST_RUNDIR) -m $(MEMSIZE) -i $(IBASE_ADDR) -d $(DBASE_ADDR) -w 32
 	rm .*.hex32
 	rm *.hex32
 	./exe_HW_sim  +exit +trace +tohost +$(VERBOSITY)
