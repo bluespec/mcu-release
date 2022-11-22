@@ -73,7 +73,6 @@ interface SoC_Top_IFC;
    // In simulation: watch memory writes to <tohost> addr to end
    // test, report PASS/FAIL
 `ifdef WATCH_TOHOST
-   method Action set_watch_tohost (Bool  watch_tohost, Fabric_Addr  tohost_addr);
    method Fabric_Data mv_tohost_value;
 `endif
 
@@ -185,11 +184,7 @@ module mkSoC_Top (SoC_Top_IFC);
 
 `ifdef WATCH_TOHOST
    // For ISA tests: watch memory writes to <tohost> addr
-   method Action set_watch_tohost (Bool  watch_tohost, Fabric_Addr  tohost_addr);
-      core.set_watch_tohost (watch_tohost, tohost_addr);
-   endmethod
-
-   method Fabric_Data mv_tohost_value = core.mv_tohost_value;
+   method Fabric_Data mv_tohost_value = gpio.mv_tohost_value;
 `endif
 
    // UART to external console

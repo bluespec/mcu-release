@@ -99,7 +99,8 @@ module mkTop_HW_Side (Empty) ;
       Fabric_Addr tohost_addr = truncate (tha);
       $display ("INFO: watch_tohost = %0d, tohost_addr = 0x%0h",
 		pack (watch_tohost), tohost_addr);
-      soc_top.set_watch_tohost (watch_tohost, tohost_addr);
+      // Not loading dynamically. Fixed in SoC Map now
+      // soc_top.set_watch_tohost (watch_tohost, tohost_addr);
 `endif
 
    endrule: rl_step0

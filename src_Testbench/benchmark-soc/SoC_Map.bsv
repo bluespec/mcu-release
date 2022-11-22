@@ -46,6 +46,9 @@ import Fabric_Defs   :: *; // Only for type Fabric_Addr
 
 interface SoC_Map_IFC;
    (* always_ready *)   method  Fabric_Addr  m_gpio_addr_base;
+`ifdef WATCH_TOHOST
+   (* always_ready *)   method  Fabric_Addr  m_gpio_addr_tohost;
+`endif
    (* always_ready *)   method  Fabric_Addr  m_gpio_addr_size;
    (* always_ready *)   method  Fabric_Addr  m_gpio_addr_lim;
 
@@ -71,6 +74,9 @@ module mkSoC_Map (SoC_Map_IFC);
    // ----------------------------------------------------------------
    // GPIO
    Fabric_Addr gpio_addr_base    = 'h6FFF_0000;
+`ifdef WATCH_TOHOST
+   Fabric_Addr gpio_addr_tohost  = 'h6FFF_0010;
+`endif
    Fabric_Addr gpio_addr_size    = 'h0000_0040;
    Fabric_Addr gpio_addr_lim     = 'h6FFF_0040;
 
@@ -93,6 +99,9 @@ module mkSoC_Map (SoC_Map_IFC);
    // INTERFACE
 
    method  Fabric_Addr  m_gpio_addr_base = gpio_addr_base;
+`ifdef WATCH_TOHOST
+   method  Fabric_Addr  m_gpio_addr_tohost = gpio_addr_tohost;
+`endif
    method  Fabric_Addr  m_gpio_addr_size = gpio_addr_size;
    method  Fabric_Addr  m_gpio_addr_lim  = gpio_addr_lim;
 

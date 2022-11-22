@@ -9,7 +9,8 @@ Word-addressed
 Single 16-bit register at offset 0x0
 Word writes at offset 0x0 will ignore upper 16 bits
 Byte/Half-Word/Word reads at offset 0x0 are okay
-All R/W accesses at non-0x0 offset will trigger error response
+This device also implements the tohost functionality at offset 0x10
+R/W to any offset (except 0x0, 0x10) will result in error response
 */
 
 // ================================================================
@@ -61,6 +62,11 @@ interface GPIO_IFC;
 
    // to external world
    (* always_ready *) method Bit #(IOWordLength) out;
+
+`ifdef WATCH_TOHOST
+   // For simulation exit
+   (* always_ready *) method Fabric_Data mv_tohost_value;
+`endif
 endinterface
 
 // ================================================================
@@ -70,7 +76,8 @@ endinterface
 (*doc="Single 16-bit register at offset 0x0"*)
 (*doc="Word writes at offset 0x0 will ignore upper 16 bits"*)
 (*doc="Byte/Half-Word/Word reads at offset 0x0 are okay"*)
-(*doc="All R/W accesses at non-0x0 offset will trigger error response"*)
+(*doc="Offset 0x10 maps to the tohost register for simulation exit"*)
+(*doc="All R/W accesses at non-0x0, non-0x10 offset will trigger error response"*)
 (* synthesize *)
 module mkGPIO (GPIO_IFC);
 
@@ -78,6 +85,24 @@ module mkGPIO (GPIO_IFC);
    Integer verbosity = 0;
 
    SoC_Map_IFC soc_map <- mkSoC_Map;
+
+`ifdef WATCH_TOHOST
+   // ----------------
+   // NOTE: "tohost"
+   // Special (fragile) ad hoc support for standard ISA tests during
+   // simulation: watch writes to physical addr <tohost> and stop on
+   // non-zero write.  This activity is done here rather than at memory
+   // because, in the standard ISA tests, the <tohost> addr is within the
+   // cacheable memory region, and therefore may never be written back to
+   // memory.  The actual address is supplied via the 'set_watch_tohost'
+   // method.  Standard ISA tests terminate by writing a non-zero value
+   // to the <tohost> addr. Bit [0] is always 1. Bits [n:1] specify which
+   // specific sub-test within the test failed.
+   //
+   // This logic is not meant to be included in the synthesizable version.
+   // ----------------
+   Reg #(Fabric_Data) rg_sim_tohost_value <- mkReg (0);
+`endif
 
    // ----------------
    // Connector to fabric
@@ -90,8 +115,17 @@ module mkGPIO (GPIO_IFC);
       return (addr [1:0] == 2'b_00);
    endfunction
 
-   function Bool fn_addr_is_ok (Fabric_Addr base, Fabric_Addr addr);
-      return (fn_addr_is_aligned (addr) && (addr == base));
+   function Bool fn_addr_is_ok (Fabric_Addr base
+`ifdef WATCH_TOHOST
+                              , Fabric_Addr tohost
+`endif
+                              , Fabric_Addr addr);
+      return (   fn_addr_is_aligned (addr)
+              && (   (addr == base)
+`ifdef WATCH_TOHOST
+                  || (addr == tohost)
+`endif
+                 ));
    endfunction
 
    // ================================================================
@@ -113,16 +147,29 @@ module mkGPIO (GPIO_IFC);
 
       let base_addr = soc_map.m_gpio_addr_base;
       let byte_addr = rda.araddr - base_addr;
+`ifdef WATCH_TOHOST
+      let tohost_addr = soc_map.m_gpio_addr_tohost;
+`endif
 
       AXI4_Resp  rresp = axi4_resp_okay;
-      if (! fn_addr_is_ok (base_addr, rda.araddr)) begin
+      if (! fn_addr_is_ok (base_addr
+`ifdef WATCH_TOHOST
+         , tohost_addr
+`endif
+         , rda.araddr)
+      ) begin
 	 rresp = axi4_resp_slverr;
 	 $display ("%06d:[E]:%m.rl_process_rd_req: Invalid addr", cur_cycle);
 	 $display ("    ", fshow (rda));
       end
 
       let rdr = AXI4_Rd_Data {rid:   rda.arid,
+`ifdef WATCH_TOHOST
+			      rdata: ((rda.araddr == base_addr) ? zeroExtend (rg_bitsOut)
+                                                                : rg_sim_tohost_value),
+`else
 			      rdata: zeroExtend (rg_bitsOut),
+`endif
 			      rresp: rresp,
 			      rlast: True,
 			      ruser: rda.aruser};
@@ -137,16 +184,28 @@ module mkGPIO (GPIO_IFC);
       let wrd <- pop_o (slave_xactor.o_wr_data);
 
       let base_addr = soc_map.m_gpio_addr_base;
+`ifdef WATCH_TOHOST
+      let tohost_addr = soc_map.m_gpio_addr_tohost;
+`endif
       AXI4_Resp  bresp = axi4_resp_okay;
 
-      if (! fn_addr_is_ok (base_addr, wra.awaddr)) begin
+      if (! fn_addr_is_ok (base_addr
+`ifdef WATCH_TOHOST
+         , tohost_addr
+`endif
+         , wra.awaddr)
+      ) begin
 	 bresp = axi4_resp_slverr;
 	 $display ("%06d:[E]:%m.rl_process_wr_req: Invalid addr", cur_cycle);
 	 $display ("    ", fshow (wra));
       end
       else begin
-         rg_bitsOut  <= updateDataWithStrobe (
-            rg_bitsOut,  truncate (wrd.wdata), truncate(wrd.wstrb));
+         if (wra.awaddr == base_addr)  
+            rg_bitsOut  <= updateDataWithStrobe (
+               rg_bitsOut,  truncate (wrd.wdata), truncate(wrd.wstrb));
+         else
+            rg_sim_tohost_value  <= updateDataWithStrobe (
+               rg_sim_tohost_value,  truncate (wrd.wdata), truncate(wrd.wstrb));
       end
 
       let wrr = AXI4_Wr_Resp {bid:   wra.awid,
@@ -169,6 +228,10 @@ module mkGPIO (GPIO_IFC);
    interface  axi4 = slave_xactor.axi_side;
 
    method Bit #(IOWordLength) out = rg_bitsOut;
+
+`ifdef WATCH_TOHOST
+   method Fabric_Data mv_tohost_value = rg_sim_tohost_value;
+`endif
 endmodule
 
 // ================================================================
