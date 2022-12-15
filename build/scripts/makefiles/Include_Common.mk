@@ -56,6 +56,6 @@ run_test_waves:
 
 .PHONY: clean
 clean:
-	rm -r -f  *~  Makefile_*  symbol_table.txt  build_dir  obj_dir *.log
+	rm -r -f  *~  Makefile_*  symbol_table.txt  build_dir  obj_dir *.log work_*
 
 # ================================================================
