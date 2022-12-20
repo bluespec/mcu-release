@@ -89,6 +89,8 @@ module mkTop_HW_Side (Empty) ;
       Bit #(2)  verbosity = (v3 ? 3 : ((v2 ? 2 : (v1 ? 1 : 0))));
       soc_top.set_verbosity  (verbosity);
 
+      $display ("Setting debug verbosity to %0d", verbosity);
+
 `ifdef WATCH_TOHOST
       // ----------------
       // Load tohost addr from symbol-table file
@@ -97,7 +99,8 @@ module mkTop_HW_Side (Empty) ;
       Fabric_Addr tohost_addr = truncate (tha);
       $display ("INFO: watch_tohost = %0d, tohost_addr = 0x%0h",
 		pack (watch_tohost), tohost_addr);
-      soc_top.set_watch_tohost (watch_tohost, tohost_addr);
+      // Not loading dynamically. Fixed in SoC Map now
+      // soc_top.set_watch_tohost (watch_tohost, tohost_addr);
 `endif
 
    endrule: rl_step0
