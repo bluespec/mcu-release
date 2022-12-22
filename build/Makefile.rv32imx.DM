@@ -38,10 +38,10 @@ BSC_COMPILATION_FLAGS += \
 	-D NM32 \
 	-D FABRIC32    \
 	-D FABRIC_$(FABRIC) \
-	-D INCLUDE_GDB_CONTROL \
 	-D JTAG_TAP \
 	-D XILINX_BSCAN \
 	-D XILINX_XC7K325T \
+#	-D INCLUDE_GDB_CONTROL \
 
 # ================================================================
 include $(CATALYST_RUNDIR)/Include_CAT.mk

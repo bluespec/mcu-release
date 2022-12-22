@@ -32,9 +32,10 @@ simulator:
 #compile Questa simulation
 	$(SCRIPTS_DIR)/makefiles/bsc_build_vsim_modelsim link $(SIM_EXE_FILE) mkTop_HW_Side \
 	-verbose \
-	-y $(USER_RTL_DIR) \
 	-y $(SIM_RTL) \
-	-y $(QUESTA_RESOURCES)/lib/Verilog \	$(QUESTA_RESOURCES)/lib/Verilog/main.v \
+	-y $(USER_RTL_DIR) \
+	-y $(QUESTA_RESOURCES)/lib/Verilog \
+	$(QUESTA_RESOURCES)/lib/Verilog/main.v \
 	$(SIM_RTL)/sim_socket.o \
 	$(SIM_RTL)/C_Imported_Functions.o \
 	$(SIM_RTL)/sim_dmi.o \

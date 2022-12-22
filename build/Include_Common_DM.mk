@@ -18,7 +18,7 @@ help:
 	@echo ''
 	@echo '    make  clean        		Remove intermediate build-files'
 	@echo '    make  full_clean   		Restore this directory to pristine state'
-	@echo ''                          
+	@echo ''
 	@echo '   NOTE: All compile targets need the Bluespec bsc compiler'
 	@echo '   NOTE: CATALYST_INSTALL points to top-level of the release'
 	@echo '   NOTE: CATALYST_WORK    points to work-area'
@@ -92,7 +92,7 @@ compile_core: build_dir Core_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating MCU Core (mkMCUTop) RTL ..."
 	$(BSC) -u -elab -verilog -vdir Core_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D SYNTHESIS $(BSC_PATH)  $(SYS_TOP_FILE)
-	rm Core_RTL/mkDummy_Mem_Server.v Core_RTL/mkShifter_Box.v
+	rm Core_RTL/mkShifter_Box.v
 	for f in FIFO2.v FIFO20.v FIFO10.v FIFO1.v SizedFIFO.v BRAM2.v BRAM2BE.v RegFile.v MakeResetA.v SyncResetA.v; do cp $(SRC_BSC_LIB_DIR)/$$f Core_RTL/; done
 	date +"(%F %T) Generated RTL into Core_RTL"
 	@echo '-------------------------'
@@ -102,7 +102,7 @@ compile_sim: build_dir Sim_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating Sim RTL to test basic functionalty ..."
 	$(BSC) -u -elab -verilog -vdir Sim_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D WATCH_TOHOST -D TEST_GPIO -D TEST_UART $(BSC_PATH) $(SIM_TOP_FILE)
-	rm Sim_RTL/mkDummy_Mem_Server.v Sim_RTL/mkShifter_Box.v
+	rm Sim_RTL/mkShifter_Box.v
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_RTL/
 	date +"(%F %T) Generated RTL into Sim_RTL"
 	@echo '-------------------------'
@@ -112,7 +112,7 @@ compile_sim_mem_test: build_dir Sim_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating Sim RTL to test basic functionalty ..."
 	$(BSC) -u -elab -verilog -vdir Sim_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D SIM_MEM_TEST -D WATCH_TOHOST -D TEST_GPIO -D TEST_UART $(BSC_PATH) $(SIM_TOP_FILE)
-	rm Sim_RTL/mkDummy_Mem_Server.v Sim_RTL/mkShifter_Box.v
+	rm Sim_RTL/mkShifter_Box.v
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_RTL/
 	date +"(%F %T) Generated RTL into Sim_RTL"
 	@echo '-------------------------'
