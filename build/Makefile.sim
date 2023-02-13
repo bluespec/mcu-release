@@ -19,7 +19,9 @@ SIMULATOR ?= VERILATOR
 
 # What is the size of the TCM in KB? Changing this would require
 # recompilation of the SW application and using the appropriate RTL.
-MEMSIZE ?= 1024
+# This size has been fixed to 16MB each for ITCM and DTCM. The MCU
+# supports smaller TCM sizes as well.
+MEMSIZE ?= 16384
 
 # What is the start location of the TCM? Changing this would require
 # recompilation of the SW application and changes to mkSoC_Map.v
