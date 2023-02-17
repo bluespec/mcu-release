@@ -18,7 +18,7 @@ help:
 	@echo ''
 	@echo '    make  clean        		Remove intermediate build-files'
 	@echo '    make  full_clean   		Restore this directory to pristine state'
-	@echo ''                          
+	@echo ''
 	@echo '   NOTE: All compile targets need the Bluespec bsc compiler'
 	@echo '   NOTE: CATALYST_INSTALL points to top-level of the release'
 	@echo '   NOTE: CATALYST_WORK    points to work-area'
@@ -45,7 +45,6 @@ BSC_PATH = -p $(CORE_DIRS):$(IP_DIRS):$(CATALYST_DIRS):$(FABRIC_DIRS):$(TESTBENC
 # Top-level file and module
 
 SYS_TOP_FILE   = $(CORE_REPO)/Sys/MCUTop.bsv
-SYS_TOP_MODULE = mkMCUTop
 
 SoC_TOP_FILE   = $(REPO)/src_Testbench/$(SoC)/SoC_Top.bsv
 SoC_TOP_MODULE = mkSoC_Top
@@ -53,10 +52,6 @@ SoC_TOP_MODULE = mkSoC_Top
 SIM_TOP_FILE   = $(REPO)/src_Testbench/common/Top_HW_Side.bsv
 SIM_TOP_MODULE = mkTop_HW_Side
 SRC_BSC_LIB_DIR = $(REPO)/build/src_bsc_lib_rtl
-
-# Unused
-CFG_DIR_NAME = CATALYST.MCU.$(MEMSIZE).$(FABRIC).DM
-# Unused
 
 # ================================================================
 # bsc compilation flags
@@ -70,9 +65,6 @@ BSC_COMPILATION_FLAGS += \
 # Generate Verilog RTL from BSV sources (needs Bluespec 'bsc' compiler)
 
 RTL_BDIRS = -bdir build_dir  -info-dir build_dir
-
-CFG_DIR:
-	mkdir -p $(CFG_DIR_NAME)
 
 build_dir:
 	mkdir -p $@
@@ -110,7 +102,7 @@ compile_sim: build_dir Sim_RTL
 .PHONY: compile_sim_mem_test
 compile_sim_mem_test: build_dir Sim_RTL
 	@echo '-------------------------'
-	date +"(%F %T) Generating Sim RTL to test basic functionalty ..."
+	date +"(%F %T) Generating Sim RTL to test basic functionalty with self-mem-test..."
 	$(BSC) -u -elab -verilog -vdir Sim_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D SIM_MEM_TEST -D WATCH_TOHOST -D TEST_GPIO -D TEST_UART $(BSC_PATH) $(SIM_TOP_FILE)
 	rm Sim_RTL/mkDummy_Mem_Server.v Sim_RTL/mkShifter_Box.v
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_RTL/
@@ -135,6 +127,6 @@ clean:
 
 .PHONY: full_clean
 full_clean: clean
-	rm -r -f *.log CLINT_RTL PLIC_RTL DM_RTL $(CFG_DIR_NAME)
+	rm -r -f *.log CLINT_RTL PLIC_RTL DM_RTL
 
 # ================================================================

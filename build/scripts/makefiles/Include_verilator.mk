@@ -53,4 +53,9 @@ simulator:
 	   cp -p  $(VTOP)  ../$(SIM_EXE_FILE)
 	@echo "INFO: Created verilator executable:    $(SIM_EXE_FILE)"
 
+# Simulator with waveform dumping and other debug capability. These
+# capabilities are there in the default version
+.PHONY: simulator_dbg
+simulator_dbg: simulator
+
 # ================================================================

@@ -44,7 +44,7 @@ module mkFabric_AXI4 (Fabric_AXI4_IFC);
 	  && (addr < soc_map.m_uart_addr_lim))
 	 return tuple2 (True, fromInteger (uart_trgt_num));
 
-      // PLIC
+      // GPIO
       else if (   (soc_map.m_gpio_addr_base <= addr)
 	       && (addr < soc_map.m_gpio_addr_lim))
 	 return tuple2 (True, fromInteger (gpio_trgt_num));
