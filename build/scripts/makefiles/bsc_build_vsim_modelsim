@@ -59,6 +59,7 @@ if [ "$BSC_COMMAND" != "link" ]; then
 fi
 
 BSC_SIM_EXECUTABLE=$2    # output executable filename
+BSC_SIM_WAVE_EXECUTABLE=${BSC_SIM_EXECUTABLE}.waves
 BSC_TOPLEVEL_MODULE=$3   # toplevel module to simulate
 
 shift 3
@@ -129,6 +130,11 @@ if [ -z "$BSC_SIM_EXECUTABLE" ]; then
   exit 1
 fi
 
+if [ -z "$BSC_SIM_WAVE_EXECUTABLE" ]; then
+  echo "ERROR: simulator executable filename not specified"
+  exit 1
+fi
+
 if [ -z "$BSC_TOPLEVEL_MODULE" ]; then
   echo "ERROR: no top-level module specified" >&2
   exit 1
@@ -168,7 +174,7 @@ if [ "$VERBOSE" = "yes" ]; then
 else
   VLOG_VERBOSE="-quiet"
 fi
-vlog $VLOG_VERBOSE -sv -work $work_dir +libext+.v $VSIM_PATH_FLAGS $BSC_VSIM_FLAGS +define+TOP=$BSC_TOPLEVEL_MODULE $BSC_VERILOG_DEFS $BSC_VERILOG_OPTS $BSC_VERILOG_FILES +define+SIM_WITH_VPI
+vlog $VLOG_VERBOSE -sv -work $work_dir +libext+.v $VSIM_PATH_FLAGS $BSC_VSIM_FLAGS +define+TOP=$BSC_TOPLEVEL_MODULE $BSC_VERILOG_DEFS $BSC_VERILOG_OPTS $BSC_VERILOG_FILES
 status=$?
 if [ "$status" != "0" ]; then
     echo "ERROR: cannot compile Verilog files" >&2
@@ -195,12 +201,19 @@ fi
 
 ######################################################################
 rm -f $BSC_SIM_EXECUTABLE
+
 status=$?
 if [ "$status" != "0" ]; then
     echo "ERROR: cannot create $BSC_SIM_EXECUTABLE" >&2
     exit $status
 fi
 
+rm -f $BSC_SIM_WAVE_EXECUTABLE
+status=$?
+if [ "$status" != "0" ]; then
+    echo "ERROR: cannot create $BSC_SIM_WAVE_EXECUTABLE" >&2
+    exit $status
+fi
 # include VPI modules if supplied
 if [ -n "$BSC_VPI_FILES" ]; then
   ## If CXX is set, use that.  Otherwise just use c++
@@ -225,7 +238,8 @@ fi
 
 # generate a "simulator executable" shell script
 echo '#!/bin/sh' > $BSC_SIM_EXECUTABLE
-echo "vsim -quiet -lib $work_dir $VPI_LINK -do \"run -all; quit\" -c main" >> $BSC_SIM_EXECUTABLE
+echo "vsim -no_autoacc -quiet -lib $work_dir $VPI_LINK -do \"run -all; quit\" -c main" >> $BSC_SIM_EXECUTABLE
+
 echo 'status=$?' >> $BSC_SIM_EXECUTABLE
 echo 'if [ "$status" != "0" ]; then' >> $BSC_SIM_EXECUTABLE
 echo '    echo "ERROR: cannot simulate design" >&2' >> $BSC_SIM_EXECUTABLE
@@ -233,6 +247,14 @@ echo '    exit $status' >> $BSC_SIM_EXECUTABLE
 echo 'fi' >> $BSC_SIM_EXECUTABLE
 chmod +x $BSC_SIM_EXECUTABLE
 
+echo '#!/bin/sh' > $BSC_SIM_WAVE_EXECUTABLE
+echo "vsim -no_autoacc -quiet -lib $work_dir $VPI_LINK -do \"vcd add -r /main/*; run -all; quit\" -c main" >> $BSC_SIM_WAVE_EXECUTABLE
+echo 'status=$?' >> $BSC_SIM_WAVE_EXECUTABLE
+echo 'if [ "$status" != "0" ]; then' >> $BSC_SIM_WAVE_EXECUTABLE
+echo '    echo "ERROR: cannot simulate design" >&2' >> $BSC_SIM_WAVE_EXECUTABLE
+echo '    exit $status' >> $BSC_SIM_WAVE_EXECUTABLE
+echo 'fi' >> $BSC_SIM_WAVE_EXECUTABLE
+chmod +x $BSC_SIM_WAVE_EXECUTABLE
 # echo "Run"
 # echo "  ./$BSC_SIM_EXECUTABLE"
 # echo "to simulate the design in batch mode or"

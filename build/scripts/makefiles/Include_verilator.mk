@@ -47,10 +47,11 @@ simulator:
 		$(VERILATOR_RESOURCES)/src_C/bluenoc_tcp.c \
 		$(VERILATOR_RESOURCES)/src_C/C_Imported_Functions.c
 	@echo "INFO: Linking verilated files"
-	cp  -p  $(VERILATOR_RESOURCES)/src_C/sim_main.cpp  obj_dir/sim_main.cpp
+	cp  -p  $(VERILATOR_RESOURCES)/src_C/sim_main.cpp obj_dir/sim_main.cpp
 	cd obj_dir; \
 	   make -j -f V$(TOPMODULE)_edited.mk  $(VTOP); \
-	   cp -p  $(VTOP)  ../$(SIM_EXE_FILE)
+	   cp -p  $(VTOP)  ../$(SIM_EXE_FILE); \
+	   cp -p  $(VTOP)  ../$(SIM_EXE_FILE).waves
 	@echo "INFO: Created verilator executable:    $(SIM_EXE_FILE)"
 
 # Simulator with waveform dumping and other debug capability. These

@@ -50,7 +50,7 @@ run_test_waves:
 	$(SCRIPTS_DIR)/Elf_to_Hex/elfhex.sh -e $(TEST) -o $(CATALYST_RUNDIR) -m $(MEMSIZE) -i $(IBASE_ADDR) -d $(DBASE_ADDR) -w 32
 	rm .*.hex32
 	rm *.hex32
-	./exe_HW_sim  +exit +trace +tohost +$(VERBOSITY)
+	./exe_HW_sim.waves  +exit +trace +tohost +$(VERBOSITY)
 
 # ================================================================
 

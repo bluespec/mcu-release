@@ -11,8 +11,8 @@ SIM_EXE_FILE = exe_HW_sim
 
 QUESTA_RESOURCES = $(SCRIPTS_DIR)/makefiles/Questasim_resources
 
-.PHONY: simulator
-simulator:
+.PHONY: vpi_obj
+vpi_obj:
 	cc -O3  -Wall -Wno-unused -D_FILE_OFFSET_BITS=64                                 -fpermissive -fPIC -c -o "$(SIM_RTL)/C_Imported_Functions.o" 		"$(QUESTA_RESOURCES)/lib/C/C_Imported_Functions.c"
 	cc -O3  -Wall -Wno-unused -D_FILE_OFFSET_BITS=64 -I"$(QUESTA_RESOURCES)/lib"/VPI -fpermissive -fPIC -c -o "$(SIM_RTL)/vpi_wrapper_c_end_timing.o"     	"$(QUESTA_RESOURCES)/C_VPI/vpi_wrapper_c_end_timing.c"
 	cc -O3  -Wall -Wno-unused -D_FILE_OFFSET_BITS=64                                 -fpermissive -fPIC -c -o "$(SIM_RTL)/sim_socket.o" 			"$(QUESTA_RESOURCES)/lib/C/sim_socket.c"
@@ -29,12 +29,16 @@ simulator:
 	cc -O3  -Wall -Wno-unused -D_FILE_OFFSET_BITS=64 -I"$(QUESTA_RESOURCES)/lib"/VPI -fpermissive -fPIC -c -o "$(SIM_RTL)/vpi_wrapper_vpidmi_response.o"    "$(QUESTA_RESOURCES)/C_VPI/vpi_wrapper_vpidmi_response.c"
 	cc -O3  -Wall -Wno-unused -D_FILE_OFFSET_BITS=64 -I"$(QUESTA_RESOURCES)/lib"/VPI -fpermissive -fPIC -c -o "$(SIM_RTL)/vpi_startup_array.o"              "$(QUESTA_RESOURCES)/C_VPI/vpi_startup_array.c"
 
-#compile Questa simulation
+# Build Questasim simulator
+.PHONY: build_vsim_modelsim
+build_vsim_modelsim: vpi_obj
 	$(SCRIPTS_DIR)/makefiles/bsc_build_vsim_modelsim link $(SIM_EXE_FILE) mkTop_HW_Side \
+	-D SIM_WITH_VPI \
 	-verbose \
 	-y $(USER_RTL_DIR) \
 	-y $(SIM_RTL) \
-	-y $(QUESTA_RESOURCES)/lib/Verilog \	$(QUESTA_RESOURCES)/lib/Verilog/main.v \
+	-y $(QUESTA_RESOURCES)/lib/Verilog \
+	$(QUESTA_RESOURCES)/lib/Verilog/main.v \
 	$(SIM_RTL)/sim_socket.o \
 	$(SIM_RTL)/C_Imported_Functions.o \
 	$(SIM_RTL)/sim_dmi.o \
@@ -50,10 +54,9 @@ simulator:
 	$(SIM_RTL)/vpi_wrapper_vpidmi_request.o \
 	$(SIM_RTL)/vpi_startup_array.o
 
-
+.PHONY: simulator
+simulator: vpi_obj build_vsim_modelsim
 	vlib work_mkTop_HW_Side
-
-
 	c++ -v   -shared \
 	    -o directc_mkTop_HW_Side.so \
 	    -Wl,-rpath,$(QUESTA_RESOURCES)/lib/VPI/g++4_64 \
@@ -72,3 +75,8 @@ simulator:
 	    $(SIM_RTL)/vpi_wrapper_vpidmi_request.o \
 	    $(SIM_RTL)/vpi_wrapper_vpidmi_response.o \
 	    $(SIM_RTL)/vpi_startup_array.o -lbdpi
+
+# Simulator with waveform dumping and other debug capability. These
+# capabilities are there in the default version
+.PHONY: simulator_dbg
+simulator_dbg: simulator
