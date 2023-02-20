@@ -76,8 +76,8 @@ module mkTop_HW_Side (Empty) ;
    // Display a banner
    rule rl_step0 (! rg_banner_printed);
       $display ("================================================================");
-      $display ("Bluespec RISC-V Demo SoC simulation v1.3");
-      $display ("Copyright (c) 2017-2021 Bluespec, Inc. All Rights Reserved.");
+      $display ("Bluespec RISC-V SoC Simulation");
+      $display ("Copyright (c) 2023 Bluespec, Inc. All Rights Reserved.");
       $display ("================================================================");
 
       rg_banner_printed <= True;
