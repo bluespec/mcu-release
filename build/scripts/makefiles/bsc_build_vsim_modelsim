@@ -248,7 +248,7 @@ echo 'fi' >> $BSC_SIM_EXECUTABLE
 chmod +x $BSC_SIM_EXECUTABLE
 
 echo '#!/bin/sh' > $BSC_SIM_WAVE_EXECUTABLE
-echo "vsim -no_autoacc -quiet -lib $work_dir $VPI_LINK -do \"vcd add -r /main/*; run -all; quit\" -c main" >> $BSC_SIM_WAVE_EXECUTABLE
+echo "vsim -quiet -lib $work_dir $VPI_LINK -do \"vcd add -r /main/*; run -all; quit\" -c main" >> $BSC_SIM_WAVE_EXECUTABLE
 echo 'status=$?' >> $BSC_SIM_WAVE_EXECUTABLE
 echo 'if [ "$status" != "0" ]; then' >> $BSC_SIM_WAVE_EXECUTABLE
 echo '    echo "ERROR: cannot simulate design" >&2' >> $BSC_SIM_WAVE_EXECUTABLE
