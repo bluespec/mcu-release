@@ -151,7 +151,7 @@ SoC_RTL:
 compile_core: build_dir CFG_DIR Core_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating MCU Core (mkBSCore) RTL ..."
-	bsc -u -elab -verilog -vdir Core_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D SYNTHESIS $(BSC_PATH)  $(CORE_TOP_FILE)
+	bsc -u -elab -verilog -vdir Core_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D SYNTHESIS $(BSC_PATH) $(CORE_TOP_FILE)
 	rm Core_RTL/mkDummy_Mem_Server.v Core_RTL/mkShifter_Box.v
 	for f in FIFO2.v FIFO20.v FIFO10.v FIFO1.v SizedFIFO.v BRAM2.v BRAM2BE.v RegFile.v MakeResetA.v SyncResetA.v; do cp $(SRC_BSC_LIB_DIR)/$$f Core_RTL/; done
 	mv Core_RTL $(CFG_DIR_NAME)/
@@ -192,7 +192,7 @@ compile_all_ip: compile_core compile_dm compile_clint compile_plic
 compile_sim_clint: build_dir CFG_DIR Sim_CLINT_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating Sim RTL to test with CLINT ..."
-	bsc -u -elab -verilog -vdir Sim_CLINT_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D WATCH_TOHOST -D TEST_CLINT $(BSC_PATH) $(SIM_TOP_FILE)
+	bsc -u -elab -verilog -vdir Sim_CLINT_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D TEST_CLINT $(BSC_PATH) $(SIM_TOP_FILE)
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_CLINT_RTL/
 	mv Sim_CLINT_RTL $(CFG_DIR_NAME)/
 	date +"(%F %T) Generated RTL into Sim_CLINT_RTL"
@@ -202,7 +202,7 @@ compile_sim_clint: build_dir CFG_DIR Sim_CLINT_RTL
 compile_sim_plic: build_dir CFG_DIR Sim_PLIC_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating Sim RTL to test with PLIC ..."
-	bsc -u -elab -verilog -vdir Sim_PLIC_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D WATCH_TOHOST -D TEST_PLIC $(BSC_PATH) $(SIM_TOP_FILE)
+	bsc -u -elab -verilog -vdir Sim_PLIC_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D TEST_PLIC $(BSC_PATH) $(SIM_TOP_FILE)
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_PLIC_RTL/
 	mv Sim_PLIC_RTL $(CFG_DIR_NAME)/
 	date +"(%F %T) Generated RTL into Sim_PLIC_RTL"
@@ -211,8 +211,8 @@ compile_sim_plic: build_dir CFG_DIR Sim_PLIC_RTL
 .PHONY: compile_sim
 compile_sim: build_dir CFG_DIR Sim_RTL
 	@echo '-------------------------'
-	date +"(%F %T) Generating Sim RTL to test basic functionalty ..."
-	bsc -u -elab -verilog -vdir Sim_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D WATCH_TOHOST -D TEST_GPIO $(BSC_PATH) $(SIM_TOP_FILE)
+	date +"(%F %T) Generating Sim RTL to test basic functionalty (with toHost test completion) ..."
+	bsc -u -elab -verilog -vdir Sim_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D WATCH_TOHOST -D MEM_TOHOST -D TEST_GPIO $(BSC_PATH) $(SIM_TOP_FILE)
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_RTL/
 	mv Sim_RTL $(CFG_DIR_NAME)/
 	date +"(%F %T) Generated RTL into Sim_RTL"
