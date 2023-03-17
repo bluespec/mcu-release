@@ -71,9 +71,9 @@ module mkSoC_Map (SoC_Map_IFC);
 
    // ----------------------------------------------------------------
    // GPIO
-   Fabric_Addr gpio_addr_base    = 'h6FFF_0000;
-   Fabric_Addr gpio_addr_size    = 'h0000_0040;
-   Fabric_Addr gpio_addr_lim     = 'h6FFF_0040;
+   Fabric_Addr gpio_addr_base    = 'h2003_0000;
+   Fabric_Addr gpio_addr_size    = 'h0000_1000;
+   Fabric_Addr gpio_addr_lim     = 'h2003_1000;
 
    // PLIC
    Fabric_Addr plic_addr_base    = 'h_0C00_0000;
@@ -81,9 +81,9 @@ module mkSoC_Map (SoC_Map_IFC);
    Fabric_Addr plic_addr_lim     = 'h_0C40_0000;
 
    // CLINT
-   Fabric_Addr clint_addr_base   = 'h_1000_0000;
+   Fabric_Addr clint_addr_base   = 'h_2000_0000;
    Fabric_Addr clint_addr_size   = 'h_0000_C000;
-   Fabric_Addr clint_addr_lim    = 'h_1000_C000;
+   Fabric_Addr clint_addr_lim    = 'h_2000_C000;
 
    // UART 0
    Fabric_Addr uart_addr_base    = 'h_6230_0000;

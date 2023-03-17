@@ -84,6 +84,8 @@ interface SoC_Top_IFC;
    // ----------------
    // Debugging: set mcu's verbosity
    method Action  set_verbosity (Bit #(2)  verbosity);
+   (* always_ready *)
+   method Action  ma_close_logs;
 `endif
 
 endinterface
@@ -281,10 +283,16 @@ module mkSoC_Top (SoC_Top_IFC);
 `ifdef WATCH_TOHOST
    // For ISA tests: watch memory writes to <tohost> addr
    method Action set_watch_tohost (Bool  watch_tohost, Fabric_Addr  tohost_addr);
+`ifdef MEM_TOHOST
       mcu.set_watch_tohost (watch_tohost, tohost_addr);
+`else
+      // if tohost in the memory is not enabled, there is no need
+      // to set a tohost address as it is predefined in the soc-map
+      noAction;
+`endif
    endmethod
 
-   method Fabric_Data mv_tohost_value = mcu.mv_tohost_value;
+   method Fabric_Data mv_tohost_value = gpio.mv_tohost_value;
 `endif
 
    // ----------------------------------------------------------------
@@ -294,8 +302,12 @@ module mkSoC_Top (SoC_Top_IFC);
    method Action  set_verbosity (Bit #(2)  verbosity);
       mcu.set_verbosity (verbosity);
    endmethod
-`endif
 
+   // Close all open log files
+   method Action ma_close_logs;
+      mcu.ma_close_logs;
+   endmethod 
+`endif
 
 endmodule: mkSoC_Top
 

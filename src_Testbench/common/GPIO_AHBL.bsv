@@ -37,6 +37,11 @@ interface GPIO_IFC;
 
    // to external world
    (* always_ready *) method Bit #(IOWordLength) out;
+
+`ifdef WATCH_TOHOST
+   // For simulation exit
+   (* always_ready *) method Fabric_Data mv_tohost_value;
+`endif
 endinterface
 
 (*doc="16-bit GPIO behind 32-bit AHB-L interface"*)
@@ -44,7 +49,8 @@ endinterface
 (*doc="Single 16-bit register at offset 0x0"*)
 (*doc="Word writes at offset 0x0 will ignore upper 16 bits"*)
 (*doc="Byte/Half-Word/Word reads at offset 0x0 are okay"*)
-(*doc="All R/W accesses at non-0x0 offset will trigger error response"*)
+(*doc="Offset 0x10 maps to the tohost register for simulation exit"*)
+(*doc="All R/W accesses at non-0x0, non-0x10 offset will trigger error response"*)
 (* synthesize *)
 module mkGPIO (GPIO_IFC);
 
@@ -74,22 +80,59 @@ module mkGPIO (GPIO_IFC);
    Reg #(AHBL_Trans)  rg_htrans    <- mkReg (AHBL_NONSEQ);
    Reg #(Bool)        rg_hwrite    <- mkReg (False);
 
+`ifdef WATCH_TOHOST
+   // ----------------
+   // NOTE: "tohost"
+   // Special (fragile) ad hoc support for standard ISA tests during
+   // simulation: watch writes to physical addr <tohost> and stop on
+   // non-zero write.  This activity is done here rather than at memory
+   // because, in the standard ISA tests, the <tohost> addr is within the
+   // cacheable memory region, and therefore may never be written back to
+   // memory.  The actual address is supplied via the 'set_watch_tohost'
+   // method.  Standard ISA tests terminate by writing a non-zero value
+   // to the <tohost> addr. Bit [0] is always 1. Bits [n:1] specify which
+   // specific sub-test within the test failed.
+   //
+   // This logic is not meant to be included in the synthesizable version.
+   // ----------------
+   Reg #(Bit #(32)) rg_sim_tohost_value <- mkReg (0);
+   // Address offset of tohost register
+   Bit #(32) sim_tohost_addr = 32'h10;
+`endif
    // ----------------
    Reg #(Tgt_State)   rg_state     <- mkReg (RDY);
    Reg #(Bit #(IOWordLength))    rg_gpio_out       <- mkReg(0);
+   // Address offset of gpio-out register
+   Bit #(32) gpio_out_addr = 32'h0;
 
+   // ----------------
+   // Connector to fabric
 
    Fabric_Addr  addr_mask = 32'hff;
 
    // ----------------
    // Is the address okay? Use the raw address from the bus as this check is done
    // in the first phase.
-   let addr_is_ok = fn_ahbl_is_aligned (w_haddr[1:0], w_hsize);
+   let addr_is_aligned = fn_ahbl_is_aligned (w_haddr[1:0], w_hsize);
    
    // Generate the new word (on writes)
    let word_addr    = rg_haddr [31:2];
    let byte_in_word = rg_haddr [1:0];
    let new_word = fn_replace_bytes (byte_in_word, rg_hsize, extend (rg_gpio_out), w_hwdata);
+`ifdef WATCH_TOHOST
+   let new_tohost = fn_replace_bytes (byte_in_word, rg_hsize, rg_sim_tohost_value, w_hwdata);
+`endif
+
+   function Bool fn_addr_is_ok (Bit #(32) addr, AHBL_Size size);
+      return (   fn_ahbl_is_aligned (addr[1:0], size)
+              && (   (addr == gpio_out_addr)
+`ifdef WATCH_TOHOST
+                  || (addr == sim_tohost_addr)
+`endif
+                 ));
+   endfunction
+
+   let addr_is_ok = fn_addr_is_ok (w_haddr, w_hsize);
 
    // ================================================================
    // BEHAVIOR
@@ -127,10 +170,21 @@ module mkGPIO (GPIO_IFC);
 
    rule rl_data (rg_state == RSP);
       // Writes
+      let write_gpio_out = (rg_haddr == gpio_out_addr);
+      let write_tohost   = (rg_haddr == sim_tohost_addr);
       if (rg_hwrite) begin
-         rg_gpio_out <= truncate (new_word);
-         if (verbosity != 0)
-            $display ("    write: [0x%08h]: 0x%08h <= 0x%08h", {word_addr, 2'b0} , rg_gpio_out, new_word);
+         if (write_gpio_out) begin
+            rg_gpio_out <= truncate (new_word);
+            if (verbosity != 0)
+               $display ("    write: [0x%08h]: 0x%08h <= 0x%08h", {word_addr, 2'b0} , rg_gpio_out, new_word);
+         end
+`ifdef WATCH_TOHOST
+         if (write_tohost) begin 
+            rg_sim_tohost_value <= new_tohost;
+            if (verbosity != 0)
+               $display ("    write: [0x%08h]: 0x%08h <= 0x%08h", {word_addr, 2'b0} , rg_sim_tohost_value, new_tohost);
+         end
+`endif
 
       end
 
@@ -159,6 +213,10 @@ module mkGPIO (GPIO_IFC);
    // INTERFACE
 
    method Bit #(IOWordLength) out = rg_gpio_out;
+
+`ifdef WATCH_TOHOST
+   method Bit #(32) mv_tohost_value = rg_sim_tohost_value;
+`endif
 
    interface AHBL_Slave_IFC target;
       // ----------------

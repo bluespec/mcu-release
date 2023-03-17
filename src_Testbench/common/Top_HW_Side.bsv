@@ -72,12 +72,13 @@ module mkTop_HW_Side (Empty) ;
    // BEHAVIOR
 
    Reg #(Bool) rg_banner_printed <- mkReg (False);
+   let rg_clf <- mkReg (InvalidFile);
 
    // Display a banner
    rule rl_step0 (! rg_banner_printed);
       $display ("================================================================");
-      $display ("Bluespec RISC-V Demo SoC simulation v1.3");
-      $display ("Copyright (c) 2017-2021 Bluespec, Inc. All Rights Reserved.");
+      $display ("Bluespec RISC-V SoC simulation. V2023.02.1");
+      $display ("Copyright (c) 2023 Bluespec, Inc. All Rights Reserved.");
       $display ("================================================================");
 
       rg_banner_printed <= True;
@@ -89,14 +90,30 @@ module mkTop_HW_Side (Empty) ;
       Bit #(2)  verbosity = (v3 ? 3 : ((v2 ? 2 : (v1 ? 1 : 0))));
       soc_top.set_verbosity  (verbosity);
 
+      $display ("Setting debug verbosity to %0d", verbosity);
+
+      String consoleLogFile = "console.log";
+      File clf <- $fopen (consoleLogFile, "w");
+      if (clf == InvalidFile) begin
+         $display ("ERROR: Cannot open trace file (%s)"
+                 , consoleLogFile);
+         $finish (1);
+      end
+      // clf = clf | stdout_mcd; // direct console out to stdout also
+      $write ("Console output sent to '%s'\n", consoleLogFile);
+      rg_clf <= clf;
+
 `ifdef WATCH_TOHOST
       // ----------------
       // Load tohost addr from symbol-table file
+      // +tohost specified in command line
       Bool watch_tohost <- $test$plusargs ("tohost");
+      // Read tohost symbol from symbol-table
       let tha <- c_get_symbol_val ("tohost");
       Fabric_Addr tohost_addr = truncate (tha);
       $display ("INFO: watch_tohost = %0d, tohost_addr = 0x%0h",
 		pack (watch_tohost), tohost_addr);
+      // set up the soc to look for the tohost symbol
       soc_top.set_watch_tohost (watch_tohost, tohost_addr);
 `endif
 
@@ -115,6 +132,8 @@ module mkTop_HW_Side (Empty) ;
       if (test_num == 0) $display ("    PASS");
       else               $display ("    FAIL <test_%0d>", test_num);
 
+      $fclose (rg_clf);
+      soc_top.ma_close_logs;
       $finish (0);
    endrule
 `endif
@@ -127,8 +146,8 @@ module mkTop_HW_Side (Empty) ;
 
    rule rl_relay_console_out;
       let ch <- soc_top.get_to_console.get;
-      $write ("%c", ch);
-      $fflush (stdout);
+      $fwrite (rg_clf, "%c", ch);
+      $fflush (rg_clf);
    endrule
 
    // Poll terminal input and relay any chars into system console input.
