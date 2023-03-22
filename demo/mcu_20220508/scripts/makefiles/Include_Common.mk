@@ -38,13 +38,14 @@ TOPMODULE = mkTop_HW_Side
 # ================================================================
 # Runs simulation executable on ELF specified by the variable TEST
 
+VERBOSITY ?= v0
 
 .PHONY: run_test
 run_test:
 	$(MCU_DEMO)/scripts/Elf_to_Hex/elfhex.sh -e $(TEST) -m $(MEMSIZE) -i $(IBASE_ADDR) -d $(DBASE_ADDR) -w 32
 	rm .*.hex32
 	rm *.hex32
-	./exe_HW_sim  +exit +tohost
+	./exe_HW_sim  +exit +tohost +$(VERBOSITY)
 
 .PHONY: run_test_waves
 run_test_waves:
