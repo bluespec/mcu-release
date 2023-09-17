@@ -25,7 +25,7 @@ help:
 	@echo ''
 	@echo '    make  clean        		Remove intermediate build-files'
 	@echo '    make  full_clean   		Restore this directory to pristine state'
-	@echo ''                          
+	@echo ''
 	@echo '   NOTE: All compile targets need the Bluespec bsc compiler'
 	@echo '   NOTE: needs MCU_REPO to point to top-level of release repository'
 	@echo '   NOTE: Run this makefile from the MCU_REPO/build directory only'
@@ -57,7 +57,8 @@ BSC_COMPILATION_FLAGS += \
 	-D SHIFT_SERIAL    \
 	-D SHIFT_LOGARITHMIC \
 	-D Near_Mem_TCM    \
-	-D TCM_$(MEMSIZE) \
+	-D ITCM_$(IMEMSIZE) \
+	-D DTCM_$(DMEMSIZE) \
 	-D NM32 \
 	-D FABRIC32    \
 	-D FABRIC_$(FABRIC) \
