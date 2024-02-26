@@ -4,7 +4,7 @@ package GPIO_AHBL;
 
 // ================================================================
 // A simple GPIO model that sits behind an AHBL interface
-// - Word addressed 
+// - Word addressed
 // - Supports 32b reads only (ignores HADDR [1:0]
 // - Supports reporting ERROR responses
 // - Does not support HTRANS_SEQ and HTRANS_BUSY
@@ -20,7 +20,7 @@ import Cur_Cycle           :: *;
 import Fabric_Defs         :: *;
 import AHBL_Defs           :: *;
 import AHBL_Types          :: *;
-
+import SoC_Map             :: *;
 
 // ================================================================
 // Parameter
@@ -55,6 +55,8 @@ endinterface
 module mkGPIO (GPIO_IFC);
 
    Bit #(2) verbosity = 0;
+
+   let soc_map <- mkSoC_Map;
 
    // ----------------
    // AHB-Lite signals and registers
@@ -97,14 +99,12 @@ module mkGPIO (GPIO_IFC);
    // ----------------
    Reg #(Bit #(32)) rg_sim_tohost_value <- mkReg (0);
    // Address offset of tohost register
-   Bit #(32) sim_tohost_addr = 32'h10;
+   Bit #(32) tohost_addr = soc_map.m_gpio_addr_tohost;
 `endif
    // ----------------
    Reg #(Tgt_State)   rg_state     <- mkReg (RDY);
    Reg #(Bit #(IOWordLength))    rg_gpio_out       <- mkReg(0);
-   // Address offset of gpio-out register
-   Bit #(32) gpio_out_addr = 32'h0;
-
+   Bit #(32) base_addr = soc_map.m_gpio_addr_base;
    // ----------------
    // Connector to fabric
 
@@ -114,7 +114,7 @@ module mkGPIO (GPIO_IFC);
    // Is the address okay? Use the raw address from the bus as this check is done
    // in the first phase.
    let addr_is_aligned = fn_ahbl_is_aligned (w_haddr[1:0], w_hsize);
-   
+
    // Generate the new word (on writes)
    let word_addr    = rg_haddr [31:2];
    let byte_in_word = rg_haddr [1:0];
@@ -123,16 +123,26 @@ module mkGPIO (GPIO_IFC);
    let new_tohost = fn_replace_bytes (byte_in_word, rg_hsize, rg_sim_tohost_value, w_hwdata);
 `endif
 
-   function Bool fn_addr_is_ok (Bit #(32) addr, AHBL_Size size);
-      return (   fn_ahbl_is_aligned (addr[1:0], size)
-              && (   (addr == gpio_out_addr)
+   function Bool fn_addr_is_ok (Fabric_Addr base
 `ifdef WATCH_TOHOST
-                  || (addr == sim_tohost_addr)
+                              , Fabric_Addr tohost
+`endif
+                              , Fabric_Addr addr
+			      , AHBL_Size   size);
+      return (   fn_ahbl_is_aligned (addr[1:0], size)
+              && (   (addr == base)
+`ifdef WATCH_TOHOST
+                  || (addr == tohost)
 `endif
                  ));
    endfunction
 
-   let addr_is_ok = fn_addr_is_ok (w_haddr, w_hsize);
+   let addr_is_ok = fn_addr_is_ok (base_addr
+`ifdef WATCH_TOHOST
+				   , tohost_addr
+`endif
+				   , w_haddr
+				   , w_hsize);
 
    // ================================================================
    // BEHAVIOR
@@ -170,8 +180,7 @@ module mkGPIO (GPIO_IFC);
 
    rule rl_data (rg_state == RSP);
       // Writes
-      let write_gpio_out = (rg_haddr == gpio_out_addr);
-      let write_tohost   = (rg_haddr == sim_tohost_addr);
+      let write_gpio_out = (rg_haddr == base_addr);
       if (rg_hwrite) begin
          if (write_gpio_out) begin
             rg_gpio_out <= truncate (new_word);
@@ -179,7 +188,7 @@ module mkGPIO (GPIO_IFC);
                $display ("    write: [0x%08h]: 0x%08h <= 0x%08h", {word_addr, 2'b0} , rg_gpio_out, new_word);
          end
 `ifdef WATCH_TOHOST
-         if (write_tohost) begin 
+         if (rg_haddr == tohost_addr) begin
             rg_sim_tohost_value <= new_tohost;
             if (verbosity != 0)
                $display ("    write: [0x%08h]: 0x%08h <= 0x%08h", {word_addr, 2'b0} , rg_sim_tohost_value, new_tohost);
@@ -189,7 +198,7 @@ module mkGPIO (GPIO_IFC);
       end
 
       // Reads
-      else begin 
+      else begin
          if (verbosity != 0)
             $display ("    read: [0x%08h] => rdata 0x%08h", {word_addr, 2'b0} , rg_gpio_out);
 

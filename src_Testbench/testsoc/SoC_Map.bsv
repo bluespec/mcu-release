@@ -48,6 +48,7 @@ import Fabric_Defs   :: *; // Only for type Fabric_Addr
 interface SoC_Map_IFC;
    (* always_ready *)   method  Fabric_Addr  m_gpio_addr_base;
    (* always_ready *)   method  Fabric_Addr  m_gpio_addr_size;
+   (* always_ready *)   method  Fabric_Addr  m_gpio_addr_tohost;
    (* always_ready *)   method  Fabric_Addr  m_gpio_addr_lim;
 
    (* always_ready *)   method  Fabric_Addr  m_plic_addr_base;
@@ -68,6 +69,7 @@ module mkSoC_Map (SoC_Map_IFC);
    // GPIO
    Fabric_Addr gpio_addr_base    = 'h6FFF_0000;
    Fabric_Addr gpio_addr_size    = 'h0000_0040;
+   Fabric_Addr gpio_addr_tohost  = 'h6FFF_0010;
    Fabric_Addr gpio_addr_lim     = 'h6FFF_0040;
 
    // PLIC
@@ -83,9 +85,10 @@ module mkSoC_Map (SoC_Map_IFC);
    // ================================================================
    // INTERFACE
 
-   method  Fabric_Addr  m_gpio_addr_base = gpio_addr_base;
-   method  Fabric_Addr  m_gpio_addr_size = gpio_addr_size;
-   method  Fabric_Addr  m_gpio_addr_lim  = gpio_addr_lim;
+   method  Fabric_Addr  m_gpio_addr_base   = gpio_addr_base;
+   method  Fabric_Addr  m_gpio_addr_size   = gpio_addr_size;
+   method  Fabric_Addr  m_gpio_addr_tohost = gpio_addr_tohost;
+   method  Fabric_Addr  m_gpio_addr_lim    = gpio_addr_lim;
 
    method  Fabric_Addr  m_plic_addr_base = plic_addr_base;
    method  Fabric_Addr  m_plic_addr_size = plic_addr_size;
