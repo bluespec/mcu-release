@@ -298,16 +298,16 @@ module mkSoC_Top (SoC_Top_IFC);
    // ----------------------------------------------------------------
    // Misc. control and status
 
-`ifndef SYNTHESIS
-   method Action  set_verbosity (Bit #(2)  verbosity);
-      mcu.set_verbosity (verbosity);
-   endmethod
+//`ifndef SYNTHESIS
+//   method Action  set_verbosity (Bit #(2)  verbosity);
+//      mcu.set_verbosity (verbosity);
+//   endmethod
 
    // Close all open log files
-   method Action ma_close_logs;
-      mcu.ma_close_logs;
-   endmethod 
-`endif
+//   method Action ma_close_logs;
+//      mcu.ma_close_logs;
+//   endmethod 
+//`endif
 
 endmodule: mkSoC_Top
 
