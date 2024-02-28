@@ -215,7 +215,7 @@ compile_sim_plic: build_dir CFG_DIR Sim_PLIC_RTL
 compile_sim: build_dir CFG_DIR Sim_RTL
 	@echo '-------------------------'
 	date +"(%F %T) Generating Sim RTL to test basic functionalty (with toHost test completion) ..."
-	bsc -u -elab -verilog -vdir Sim_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D WATCH_TOHOST -D MEM_TOHOST -D TEST_GPIO $(BSC_PATH) $(SIM_TOP_FILE)
+	bsc -u -elab -verilog -vdir Sim_RTL $(RTL_BDIRS) $(BSC_COMPILATION_FLAGS) -D WATCH_TOHOST -D TEST_GPIO $(BSC_PATH) $(SIM_TOP_FILE)
 	cp $(REPO)/src_Testbench/common/src_verilog/* Sim_RTL/
 	mv Sim_RTL $(CFG_DIR_NAME)/
 	date +"(%F %T) Generated RTL into Sim_RTL"
